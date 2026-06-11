@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>智能快递驿站 · 仓储追踪管理系统 V5</title>
+<title>智能快递驿站 · 仓储追踪管理系统</title>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -263,6 +263,63 @@ canvas.chart{width:100%;border-radius:8px;background:#fff;border:1px solid var(-
   .imr{grid-template-columns:1fr}
   .io-grid{grid-template-columns:1fr}
   .heatmap{grid-template-columns:1fr!important}
+  .quick-grid{grid-template-columns:1fr}
+  .arch-flow{flex-direction:column}
+}
+
+/* ===== 系统架构图 ===== */
+.arch-flow{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;flex-wrap:wrap}
+.arch-node{background:var(--border-light);border:2px solid var(--border);border-radius:10px;padding:8px 14px;text-align:center;min-width:80px;transition:all .3s;font-size:.78rem}
+.arch-node:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.arch-node.an-blue{border-color:var(--blue);background:var(--blue-bg)}
+.arch-node.an-green{border-color:var(--success);background:#ecfdf5}
+.arch-node.an-orange{border-color:var(--orange);background:#fff7ed}
+.arch-node.an-purple{border-color:var(--purple);background:#f5f3ff}
+.arch-node.an-red{border-color:var(--danger);background:#fef2f2}
+.arch-node.an-teal{border-color:var(--teal);background:#f0fdfa}
+.arch-node .an-icon{font-size:1.2rem}
+.arch-node .an-label{font-weight:600;font-size:.78rem}
+.arch-node .an-text{font-size:.64rem;color:var(--fg-muted);margin-top:1px}
+.arch-arrow{color:var(--blue);font-size:1.1rem;font-weight:700}
+
+/* ===== 快速操作卡片 ===== */
+.quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.quick-card{border:2px solid var(--border);border-radius:var(--radius);padding:18px;cursor:pointer;transition:all .25s;text-align:center;position:relative;overflow:hidden}
+.quick-card:hover{border-color:var(--blue);box-shadow:var(--shadow-lg);transform:translateY(-3px)}
+.quick-card .qc-step{position:absolute;top:8px;right:10px;font-size:.62rem;color:var(--fg-muted);font-weight:600;background:var(--border-light);padding:1px 7px;border-radius:8px}
+.quick-card .qc-icon{font-size:2.2rem;margin-bottom:8px}
+.quick-card .qc-title{font-weight:700;font-size:.95rem;margin-bottom:4px}
+.quick-card .qc-desc{font-size:.72rem;color:var(--fg-muted);line-height:1.6}
+.quick-card.qc-blue{border-color:var(--blue-lighter);background:linear-gradient(135deg,var(--blue-bg),#fff)}
+.quick-card.qc-blue:hover{border-color:var(--blue);background:linear-gradient(135deg,#dbeafe,#fff)}
+.quick-card.qc-green{border-color:#a7f3d0;background:linear-gradient(135deg,#ecfdf5,#fff)}
+.quick-card.qc-green:hover{border-color:var(--success);background:linear-gradient(135deg,#d1fae5,#fff)}
+.quick-card.qc-orange{border-color:#fed7aa;background:linear-gradient(135deg,#fff7ed,#fff)}
+.quick-card.qc-orange:hover{border-color:var(--orange);background:linear-gradient(135deg,#ffedd5,#fff)}
+
+/* ===== 演示横幅 ===== */
+.demo-banner{background:linear-gradient(135deg,var(--blue-deeper),var(--blue-dark));border-radius:var(--radius);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;color:#fff;flex-wrap:wrap;gap:10px}
+.demo-banner .db-text{font-size:.85rem;line-height:1.7}
+.demo-banner .db-text b{font-size:1rem}
+.demo-banner .db-btn{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#78350f;border:none;padding:10px 22px;border-radius:8px;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap}
+.demo-banner .db-btn:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(245,158,11,.4)}
+
+/* ===== 操作步骤引导 ===== */
+.step-guide{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:var(--border-light);border-radius:8px;margin-bottom:12px;font-size:.8rem;line-height:1.7}
+.step-num{width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.76rem;flex-shrink:0;margin-top:1px}
+.step-guide .sg-content b{color:var(--blue-dark)}
+
+/* ===== 打印输出优化 ===== */
+.result-output{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:16px;font-family:"SF Mono","Fira Code",monospace;font-size:.78rem;line-height:1.8;max-height:300px;overflow-y:auto;white-space:pre-wrap;word-break:break-all}
+.result-output .ro-title{color:#60a5fa;font-weight:700;border-bottom:1px solid #334155;padding-bottom:4px;margin-bottom:6px}
+.result-output .ro-ok{color:#34d399}
+.result-output .ro-warn{color:#fbbf24}
+.result-output .ro-err{color:#ef4444}
+.result-output .ro-info{color:#94a3b8}
+
+@media print{
+  .top-nav,.hero,.sf,button,.btn,.bg,.quick-grid,.demo-banner,.step-guide{display:none!important}
+  .mod{display:block!important}.card{box-shadow:none;border:1px solid #ddd;page-break-inside:avoid}
 }
 </style>
 </head>
@@ -309,6 +366,63 @@ canvas.chart{width:100%;border-radius:8px;background:#fff;border:1px solid var(-
 
 <!-- ====== 总览 ====== -->
 <div class="mod active" id="mod-dashboard">
+
+  <!-- 一键演示横幅 -->
+  <div class="demo-banner">
+    <div class="db-text">
+      <b>🎬 一键演示</b><br>
+      自动生成20条模拟包裹数据 + 环境采集 + 通信仿真 + 边缘计算研判，快速体验完整系统功能流程
+    </div>
+    <button class="db-btn" onclick="autoDemo()">🚀 一键演示</button>
+  </div>
+
+  <!-- 快速操作导航 -->
+  <div class="quick-grid">
+    <div class="quick-card qc-blue" onclick="navTo('rfid')">
+      <div class="qc-step">STEP 1</div>
+      <div class="qc-icon">📦</div>
+      <div class="qc-title">包裹入库操作</div>
+      <div class="qc-desc">RFID编码解析 → 物理参数采集 → 库区定位分配 → 数据录入</div>
+    </div>
+    <div class="quick-card qc-green" onclick="navTo('comm')">
+      <div class="qc-step">STEP 2</div>
+      <div class="qc-icon">🔗</div>
+      <div class="qc-title">核心功能操作</div>
+      <div class="qc-desc">通信协议仿真 → IoT设备控制 → 边缘计算研判 → 安防联动</div>
+    </div>
+    <div class="quick-card qc-orange" onclick="navTo('stats')">
+      <div class="qc-step">STEP 3</div>
+      <div class="qc-icon">📈</div>
+      <div class="qc-title">查询结果输出</div>
+      <div class="qc-desc">统计查询 → 图表分析 → 溯源追踪 → 综合报表导出</div>
+    </div>
+  </div>
+
+  <!-- 系统架构概览 -->
+  <div class="card">
+    <div class="ch"><div class="ct"><span class="bar"></span>系统架构概览 · 上行采集 + 下行控制双向闭环</div></div>
+    <div class="arch-flow">
+      <div class="arch-node an-blue"><div class="an-icon">📦</div><div class="an-label">包裹入库</div><div class="an-text">RFID编码解析</div></div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node an-teal"><div class="an-icon">📡</div><div class="an-label">上行采集</div><div class="an-text">7类传感器</div></div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node an-purple"><div class="an-icon">🧠</div><div class="an-label">边缘网关</div><div class="an-text">本地研判</div></div>
+      <div class="arch-arrow">→</div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <div class="arch-node an-green"><div class="an-icon">✅</div><div class="an-label">正常数据</div><div class="an-text">定时上传</div></div>
+        <div class="arch-node an-red"><div class="an-icon">⚠️</div><div class="an-label">异常数据</div><div class="an-text">优先上报</div></div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node an-blue"><div class="an-icon">☁️</div><div class="an-label">云端同步</div><div class="an-text">数据持久化</div></div>
+    </div>
+    <div style="display:flex;justify-content:center;gap:20px;margin-top:8px;font-size:.76rem;color:var(--fg-muted)">
+      <span>🔒 安防联动</span>
+      <span>📍 UWB室内定位</span>
+      <span>🔗 MQTT/Modbus/RFID协议</span>
+      <span>📊 时序数据库</span>
+    </div>
+  </div>
+
   <div class="tip">💡 系统总览：实时汇总入库量、环境状态、设备连接、通信质量、安防状态、边缘网关与异常预警。上行采集+下行控制双向闭环，边缘计算本地研判。</div>
   <div class="dg">
     <div class="dc"><div class="dl">今日入库</div><div class="dv" id="dPkg">0</div><div class="ds" id="dPkgS">--</div></div>
@@ -328,6 +442,12 @@ canvas.chart{width:100%;border-radius:8px;background:#fff;border:1px solid var(-
 <!-- ====== RFID ====== -->
 <div class="mod" id="mod-rfid">
   <div class="tip">💡 RFID 16位编码 = 网点(4) + 类型(2) + 批次(6) + 校验(4)。支持增删查、时效预估、异常预警、称重绑定与室内定位。</div>
+
+  <!-- 操作步骤引导 -->
+  <div class="step-guide"><div class="step-num">1</div><div class="sg-content"><b>录入RFID编码</b> — 手动输入16位编码，或点击「模拟扫描」自动生成。称重、尺寸、表面温度可由传感器自动填充。</div></div>
+  <div class="step-guide"><div class="step-num">2</div><div class="sg-content"><b>解析入库</b> — 点击「解析入库」完成编码校验、网点映射、类型识别、库区货架分配，数据自动写入时序数据库。</div></div>
+  <div class="step-guide"><div class="step-num">3</div><div class="sg-content"><b>查看结果</b> — 解析结果卡片展示详情，入库记录表支持搜索/删除/CSV导出，切换到「统计」页面查看图表与报表。</div></div>
+
   <div class="card">
     <div class="ch"><div class="ct"><span class="bar"></span>RFID 编码录入</div><button class="btn bo bs" onclick="clrRFID()">清空</button></div>
     <div class="fr">
@@ -500,6 +620,12 @@ canvas.chart{width:100%;border-radius:8px;background:#fff;border:1px solid var(-
 <!-- ====== 通信仿真 ====== -->
 <div class="mod" id="mod-comm">
   <div class="tip">💡 通信链路仿真：模拟 MQTT/Modbus/RFID 三种协议的数据帧传输，计算传输时延与丢包率，支持数据帧拆分与 CRC 校验。支持报文打印输出。</div>
+
+  <!-- 操作步骤引导 -->
+  <div class="step-guide"><div class="step-num">1</div><div class="sg-content"><b>选择协议与参数</b> — 选择MQTT/Modbus RTU/RFID EPC Gen2协议，配置带宽与丢包概率。</div></div>
+  <div class="step-guide"><div class="step-num">2</div><div class="sg-content"><b>发送仿真帧</b> — 单帧发送或批量发送10帧，系统自动计算CRC-16校验、时延与吞吐量。</div></div>
+  <div class="step-guide"><div class="step-num">3</div><div class="sg-content"><b>查看帧结构</b> — 协议帧结构解析区展示帧头/载荷/CRC分色高亮，报文终端实时打印完整报文。</div></div>
+
   <div class="dg">
     <div class="dc purple"><div class="dl">平均时延</div><div class="dv" id="cDelay">--</div><div class="ds">ms</div></div>
     <div class="dc"><div class="dl">丢包率</div><div class="dv" id="cLoss">0%</div><div class="ds">累计</div></div>
@@ -665,6 +791,12 @@ canvas.chart{width:100%;border-radius:8px;background:#fff;border:1px solid var(-
 <!-- ====== 统计 ====== -->
 <div class="mod" id="mod-stats">
   <div class="tip">💡 查询统计：按网点/类型/状态筛选，查看入库趋势与异常分布。综合信息报表汇总全维度数据，支持一键导出。</div>
+
+  <!-- 操作步骤引导 -->
+  <div class="step-guide"><div class="step-num">1</div><div class="sg-content"><b>设置筛选条件</b> — 按网点、包裹类型、状态筛选数据，或保持默认查看全部。</div></div>
+  <div class="step-guide"><div class="step-num">2</div><div class="sg-content"><b>执行查询</b> — 点击「查询」按钮，系统统计匹配数据并生成图表与报表。</div></div>
+  <div class="step-guide"><div class="step-num">3</div><div class="sg-content"><b>查看结果与导出</b> — 图表区展示温湿度折线、状态饼图、热力图；综合报表支持CSV导出。</div></div>
+
   <div class="card">
     <div class="ch"><div class="ct"><span class="bar"></span>筛选条件</div></div>
     <div class="fr">
@@ -689,6 +821,17 @@ canvas.chart{width:100%;border-radius:8px;background:#fff;border:1px solid var(-
   </div>
   <div class="card"><div class="ch"><div class="ct"><span class="bar"></span>网点分布</div></div><div class="cb" id="siteCh"></div><div class="cl" id="siteLb"></div></div>
   <div class="card"><div class="ch"><div class="ct"><span class="bar"></span>类型分布</div></div><div class="cb" id="typeCh" style="height:90px"></div><div class="cl" id="typeLb"></div></div>
+
+  <!-- 结果输出终端 -->
+  <div class="card">
+    <div class="ch"><div class="ct"><span class="bar"></span>查询结果输出</div>
+      <div style="display:flex;gap:6px">
+        <button class="btn bp bs" onclick="printStatsResult()">🖨️ 打印结果</button>
+        <button class="btn bo bs" onclick="clearStatsOutput()">🗑️ 清空</button>
+      </div>
+    </div>
+    <div class="result-output" id="statsOutput">// 查询结果输出终端\n// 点击「打印结果」将当前查询统计汇总输出至此\n</div>
+  </div>
 
   <!-- 综合信息报表 -->
   <div class="card">
@@ -724,7 +867,7 @@ canvas.chart{width:100%;border-radius:8px;background:#fff;border:1px solid var(-
 <footer class="sf">
   <div class="fi2">
     <div class="fl2"><a href="#">隐私政策</a><a href="#">服务条款</a><a href="#">数据安全</a><a href="#">帮助中心</a></div>
-    <div class="fc">智能快递驿站 · 仓储追踪管理系统 V5 · RFID识别 · 环境监测 · 多传感采集 · 通信仿真 · 远程控制 · 安防联动 · 边缘计算 · 全链路溯源<br>© 2026 Smart Express Hub. All rights reserved. 本系统仅用于仿真演示，不涉及真实个人数据。</div>
+    <div class="fc">智能快递驿站 · 仓储追踪管理系统 · RFID识别 · 环境监测 · 多传感采集 · 通信仿真 · 远程控制 · 安防联动 · 边缘计算 · 全链路溯源<br>© 2026 Smart Express Hub. All rights reserved. 本系统仅用于仿真演示，不涉及真实个人数据。</div>
   </div>
 </footer>
 
@@ -767,6 +910,44 @@ document.querySelectorAll('.nav-tab').forEach(t=>{
     if(t.dataset.m==='trace')renderLocGrid();
   });
 });
+
+/* ===== 快速导航 ===== */
+function navTo(mod){
+  document.querySelectorAll('.nav-tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.mod').forEach(x=>x.classList.remove('active'));
+  document.querySelector(`.nav-tab[data-m="${mod}"]`).classList.add('active');
+  document.getElementById('mod-'+mod).classList.add('active');
+  if(mod==='stats')setTimeout(()=>drawCharts(),100);
+  if(mod==='trace')renderLocGrid();
+}
+
+/* ===== 一键演示 ===== */
+function autoDemo(){
+  log('🎬 一键演示启动...');
+  // 1. 生成20条模拟包裹数据
+  for(let i=0;i<20;i++){
+    const templates=['random','standard','cold','fragile','urgent','big'];
+    simGenerateOne(templates[Math.floor(Math.random()*templates.length)]);
+  }
+  renderRFIDTB();
+  // 2. 读取环境数据
+  fetchSens();
+  // 3. 模拟通信帧
+  for(let i=0;i<3;i++) setTimeout(()=>simTransmit(), i*300);
+  // 4. 边缘计算模拟
+  for(let i=0;i<5;i++) edgeSimOnce();
+  // 5. 读取几个IoT传感器
+  iotTiltR();iotVibR();readDoor();readLaser();
+  // 6. 同步与计数
+  sync();simUpdateCount();
+  log('🎬 一键演示完成：20条包裹 + 环境采集 + 3帧通信 + 5次边缘研判 + 4项IoT读取');
+  // 切换到统计页面展示结果
+  setTimeout(()=>{
+    navTo('stats');
+    runStats();
+    printStatsResult();
+  }, 800);
+}
 
 /* ===== 日志 ===== */
 function log(msg){
@@ -1140,7 +1321,7 @@ function simTransmit(){
   const proto=document.getElementById('protoSel').value;const bw=parseInt(document.getElementById('bw').value)||256;const lossR=parseFloat(document.getElementById('lossR').value)||2;
   const data=genPayload(proto);const txDelay=(data.len*8/bw)*1000;const propDelay=Math.random()*15+1;const totalDelay=+(txDelay+propDelay).toFixed(2);
   const lost=Math.random()*100<lossR;const crcOk=!lost;
-  A.comm.totalFrames++;if(lost){A.comm.lossCount++;A.comm.err}else{A.comm.ok++}
+  A.comm.totalFrames++;if(lost){A.comm.lossCount++;A.comm.err++}else{A.comm.ok++}
   A.comm.totalBytes+=data.len;A.comm.delays.push(totalDelay);if(A.comm.delays.length>100)A.comm.delays.shift();
   const avgDelay=A.comm.delays.length?+(A.comm.delays.reduce((a,b)=>a+b,0)/A.comm.delays.length).toFixed(2):0;
   const ts=new Date().toLocaleTimeString('zh-CN',{hour12:false});
@@ -1456,7 +1637,7 @@ function drawHeatmap(){
 }
 
 /* ===== 统计 ===== */
-function populateSF(){const sel=document.getElementById('stSite');sel.innerHTML='<option value="">全部</option>'+Object.values(A.siteMap).map(s=>`<option value="${s}">${s}</option>`).join('')}
+function populateSF(){const sel=document.getElementById('stSite');sel.innerHTML='<option value="">全部</option>'+Object.values(siteMap).map(s=>`<option value="${s}">${s}</option>`).join('')}
 function runStats(){
   const site=document.getElementById('stSite').value,type=document.getElementById('stType').value,st=document.getElementById('stSt').value;
   let d=A.recs.filter(r=>{if(site&&r.site!==site)return false;if(type&&r.type!==type)return false;if(st&&r.st!==st)return false;return true});
@@ -1478,6 +1659,82 @@ function runStats(){
   renderTS();drawCharts();
 }
 function resetStats(){document.getElementById('stSite').value='';document.getElementById('stType').value='';document.getElementById('stSt').value='';runStats()}
+
+/* ===== 结果输出终端 ===== */
+function printStatsResult(){
+  const el=document.getElementById('statsOutput');
+  const ts=new Date().toLocaleString('zh-CN',{hour12:false});
+  const total=A.recs.length;
+  const normal=A.recs.filter(r=>r.st==='正常').length;
+  const warn=A.recs.filter(r=>r.st==='预警').length;
+  const over=A.recs.filter(r=>r.st==='超时').length;
+  const lastEnv=A.envRecs[0];
+  const commOk=A.comm.ok, commErr=A.comm.err;
+  const avgDelay=A.comm.delays.length?+(A.comm.delays.reduce((a,b)=>a+b,0)/A.comm.delays.length).toFixed(2):0;
+
+  // 网点统计
+  const siteStats={};A.recs.forEach(r=>{siteStats[r.site]=(siteStats[r.site]||0)+1});
+  // 类型统计
+  const typeStats={};A.recs.forEach(r=>{typeStats[r.type]=(typeStats[r.type]||0)+1});
+
+  let output=`\n<span class="ro-title">═══════════════════════════════════════</span>\n`;
+  output+=`<span class="ro-title">  智能快递驿站 · 仓储追踪管理系统</span>\n`;
+  output+=`<span class="ro-title">  查询统计结果输出</span>\n`;
+  output+=`<span class="ro-title">═══════════════════════════════════════</span>\n\n`;
+  output+=`<span class="ro-info">输出时间：${ts}</span>\n\n`;
+
+  output+=`<span class="ro-ok">【包裹数据汇总】</span>\n`;
+  output+=`  总入库量：${total} 条\n`;
+  output+=`  正常：${normal} 条 (${total?((normal/total)*100).toFixed(1):0}%)  `;
+  output+=`预警：${warn} 条 (${total?((warn/total)*100).toFixed(1):0}%)  `;
+  output+=`超时：${over} 条 (${total?((over/total)*100).toFixed(1):0}%)\n\n`;
+
+  if(Object.keys(siteStats).length){
+    output+=`<span class="ro-ok">【网点分布】</span>\n`;
+    Object.entries(siteStats).sort((a,b)=>b[1]-a[1]).forEach(([k,v])=>{
+      const bar='█'.repeat(Math.min(20,Math.round(v/Math.max(...Object.values(siteStats))*20)));
+      output+=`  ${k.padEnd(10)} ${bar} ${v}件\n`;
+    });
+    output+='\n';
+  }
+
+  if(Object.keys(typeStats).length){
+    output+=`<span class="ro-ok">【类型分布】</span>\n`;
+    Object.entries(typeStats).sort((a,b)=>b[1]-a[1]).forEach(([k,v])=>{
+      output+=`  ${k.padEnd(6)} ${v}件\n`;
+    });
+    output+='\n';
+  }
+
+  if(lastEnv){
+    output+=`<span class="${lastEnv.st==='正常'?'ro-ok':'ro-err'}">【环境状态】</span>\n`;
+    output+=`  温度：${lastEnv.temp}℃  湿度：${lastEnv.hum}%  状态：${lastEnv.st}\n\n`;
+  }
+
+  output+=`<span class="ro-ok">【通信质量】</span>\n`;
+  output+=`  成功帧：${commOk}  异常帧：${commErr}  平均时延：${avgDelay}ms  丢包率：${A.comm.totalFrames?((A.comm.lossCount/A.comm.totalFrames)*100).toFixed(1):0}%\n\n`;
+
+  output+=`<span class="ro-ok">【边缘计算】</span>\n`;
+  output+=`  本地研判：${A.edge.total}条  正常：${A.edge.normal}  异常：${A.edge.anomaly}  云端同步：${A.edge.cloudSync}\n\n`;
+
+  output+=`<span class="ro-ok">【安防状态】</span>\n`;
+  const secOk=!A.sec.doorOpen&&!A.sec.laserTriggered&&!A.sec.alarmOn;
+  output+=`  综合状态：${secOk?'<span class="ro-ok">✅ 安全</span>':'<span class="ro-err">⚠️ 告警</span>'}  `;
+  output+=`门磁：${A.sec.doorOpen?'<span class="ro-err">打开</span>':'<span class="ro-ok">关闭</span>'}  `;
+  output+=`激光：${A.sec.laserTriggered?'<span class="ro-err">中断</span>':'<span class="ro-ok">正常</span>'}  `;
+  output+=`报警：${A.sec.alarmOn?'<span class="ro-err">报警中</span>':'<span class="ro-ok">待机</span>'}\n\n`;
+
+  output+=`<span class="ro-info">═══════════════════════════════════════</span>\n`;
+  output+=`<span class="ro-info">  以上数据由系统自动汇总 · 可点击「导出全维度报表」获取CSV文件</span>\n`;
+
+  el.innerHTML=output;
+  el.scrollTop=el.scrollHeight;
+  log('🖨️ 查询结果已打印到输出终端');
+}
+
+function clearStatsOutput(){
+  document.getElementById('statsOutput').textContent='// 查询结果输出终端\n// 点击「打印结果」将当前查询统计汇总输出至此\n';
+}
 
 function renderReport(d){
   const tb=document.getElementById('reportTB');
@@ -1549,7 +1806,7 @@ setInterval(()=>{if(A.doorAuto)readDoor();if(A.laserAuto)readLaser()},10000);
 setInterval(edgeUploadNormal,15000); // 边缘网关每15秒上传正常数据
 
 /* ===== 初始化 ===== */
-(function(){log('系统启动 V5 · 边缘计算+全链路溯源');setTimeout(()=>{fetchSens();renderCtrlDevices();renderLocGrid();populateSF();sync()},400)})();
+(function(){log('系统启动 · 首页架构+快速导航+一键演示+结果输出');setTimeout(()=>{fetchSens();renderCtrlDevices();renderLocGrid();populateSF();sync()},400)})();
 </script>
 </body>
 </html>
