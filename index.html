@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智能快递驿站 · 仓储追踪管理系统 V5</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --blue:#2563eb;--blue-light:#3b82f6;--blue-lighter:#60a5fa;
+  --blue-bg:#eff6ff;--blue-dark:#1d4ed8;--blue-deeper:#1e3a5f;
+  --bg:#f0f4f8;--bg-card:#fff;--fg:#1e293b;--fg-muted:#64748b;
+  --border:#e2e8f0;--border-light:#f1f5f9;
+  --success:#10b981;--warning:#f59e0b;--danger:#ef4444;--info:#06b6d4;
+  --purple:#8b5cf6;--teal:#14b8a6;--orange:#f97316;
+  --radius:12px;--shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(37,99,235,.06);
+  --shadow-lg:0 4px 24px rgba(37,99,235,.12);
+  --max-w:1200px;--nav-h:56px;
+}
+html{font-size:14px;scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--fg);line-height:1.55;min-height:100vh;display:flex;flex-direction:column}
+a{color:var(--blue);text-decoration:none}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
+
+.top-nav{position:sticky;top:0;z-index:100;height:var(--nav-h);background:linear-gradient(135deg,var(--blue-deeper),var(--blue-dark));box-shadow:0 2px 12px rgba(0,0,0,.15);display:flex;align-items:center;justify-content:center}
+.nav-inner{width:100%;max-width:var(--max-w);padding:0 16px;display:flex;align-items:center;justify-content:space-between}
+.nav-brand{display:flex;align-items:center;gap:8px;color:#fff;font-weight:700;font-size:1rem}
+.nav-brand .logo{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--blue-light),var(--blue-lighter));display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.nav-tabs{display:flex;gap:1px;background:rgba(255,255,255,.08);border-radius:8px;padding:2px;overflow-x:auto}
+.nav-tab{display:flex;flex-direction:column;align-items:center;gap:1px;padding:5px 10px;border-radius:7px;font-size:.64rem;font-weight:500;cursor:pointer;border:none;background:transparent;color:rgba(255,255,255,.65);transition:all .2s;white-space:nowrap}
+.nav-tab .ti{font-size:1rem}
+.nav-tab:hover{color:#fff;background:rgba(255,255,255,.1)}
+.nav-tab.active{background:rgba(255,255,255,.18);color:#fff}
+.nav-right{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.8);font-size:.75rem}
+.pd{width:7px;height:7px;border-radius:50%;background:var(--success);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+.hero{background:linear-gradient(135deg,var(--blue-deeper) 0%,var(--blue-dark) 40%,var(--blue) 100%);padding:24px 16px 20px;display:flex;justify-content:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;right:-20%;width:400px;height:400px;background:radial-gradient(circle,rgba(255,255,255,.05) 0%,transparent 70%);border-radius:50%}
+.hero-inner{width:100%;max-width:var(--max-w);display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1;flex-wrap:wrap;gap:14px}
+.hero-text h1{font-size:1.35rem;color:#fff;font-weight:700;margin-bottom:2px}
+.hero-text p{color:rgba(255,255,255,.65);font-size:.82rem}
+.hero-stats{display:flex;gap:10px;flex-wrap:wrap}
+.hs{background:rgba(255,255,255,.1);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:12px 18px;text-align:center;min-width:90px}
+.hs .v{font-size:1.4rem;font-weight:700;color:#fff}
+.hs .l{font-size:.68rem;color:rgba(255,255,255,.55);margin-top:1px}
+
+.main-wrap{flex:1;display:flex;justify-content:center;padding:16px 12px}
+.main-inner{width:100%;max-width:var(--max-w)}
+.mod{display:none}.mod.active{display:block;animation:fu .25s ease}
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:14px;transition:box-shadow .2s}
+.card:hover{box-shadow:var(--shadow-lg)}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border-light);flex-wrap:wrap;gap:6px}
+.ct{font-size:.95rem;font-weight:600;display:flex;align-items:center;gap:7px}
+.ct .bar{width:3px;height:16px;border-radius:2px;background:var(--blue)}
+.tip{background:var(--blue-bg);border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;padding:9px 13px;margin-bottom:14px;font-size:.78rem;color:var(--blue-dark);display:flex;align-items:flex-start;gap:5px;line-height:1.6}
+.fg{margin-bottom:12px}
+.fl{display:block;margin-bottom:4px;font-size:.8rem;font-weight:500}
+.fi,.fs{width:100%;padding:8px 11px;border:1px solid var(--border);border-radius:7px;font-size:.85rem;background:#fff;outline:none;transition:border-color .2s,box-shadow .2s}
+.fi:focus,.fs:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.fr{display:flex;gap:10px}.fr .fg{flex:1}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:8px 15px;border:none;border-radius:7px;font-size:.84rem;font-weight:500;cursor:pointer;transition:all .2s}
+.bp{background:linear-gradient(135deg,var(--blue),var(--blue-light));color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.2)}
+.bp:hover{box-shadow:0 4px 14px rgba(37,99,235,.3);transform:translateY(-1px)}
+.bo{background:transparent;border:1px solid var(--border);color:var(--fg-muted)}
+.bo:hover{border-color:var(--blue);color:var(--blue)}
+.bd{background:var(--danger);color:#fff}.bd:hover{opacity:.9}
+.bw{background:var(--warning);color:#fff}
+.bg{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap}
+.bs{padding:5px 10px;font-size:.76rem}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--border-light)}
+th{background:var(--border-light);font-weight:600;color:var(--fg-muted);font-size:.74rem;text-transform:uppercase;letter-spacing:.3px}
+tr:hover td{background:var(--blue-bg)}
+.badge{display:inline-block;padding:2px 9px;border-radius:9px;font-size:.72rem;font-weight:600}
+.bS{background:#ecfdf5;color:var(--success)}.bW{background:#fffbeb;color:var(--warning)}
+.bD{background:#fef2f2;color:var(--danger)}.bI{background:#ecfeff;color:var(--info)}
+.bB{background:var(--blue-bg);color:var(--blue-dark)}.bP{background:#f5f3ff;color:var(--purple)}.bT{background:#f0fdfa;color:var(--teal)}.bO{background:#fff7ed;color:var(--orange)}
+
+.dg{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:14px}
+.dc{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:all .2s}
+.dc:hover{transform:translateY(-1px);box-shadow:var(--shadow-lg)}
+.dc::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,var(--blue),var(--blue-lighter))}
+.dc.green::before{background:linear-gradient(90deg,#10b981,#34d399)}
+.dc.yellow::before{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+.dc.red::before{background:linear-gradient(90deg,#ef4444,#f87171)}
+.dc.purple::before{background:linear-gradient(90deg,#8b5cf6,#a78bfa)}
+.dc.teal::before{background:linear-gradient(90deg,#14b8a6,#2dd4bf)}
+.dc.orange::before{background:linear-gradient(90deg,#f97316,#fb923c)}
+.dl{font-size:.73rem;color:var(--fg-muted);margin-bottom:3px}
+.dv{font-size:1.5rem;font-weight:700}
+.ds{font-size:.68rem;color:var(--fg-muted);margin-top:1px}
+
+.eg{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.ec{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:18px;text-align:center;box-shadow:var(--shadow)}
+.ec .ei{font-size:1.8rem;margin-bottom:4px}.ec .el{font-size:.8rem;color:var(--fg-muted)}
+.ec .ev{font-size:2rem;font-weight:700;margin:3px 0}.ec .eu{font-size:.85rem;color:var(--fg-muted);font-weight:400}
+.ec .er{font-size:.72rem;color:var(--fg-muted)}
+.gauge{width:100%;height:7px;border-radius:4px;background:#e2e8f0;margin-top:8px;overflow:hidden}
+.gf{height:100%;border-radius:4px;transition:width .5s}
+.gf.g{background:linear-gradient(90deg,#10b981,#34d399)}.gf.y{background:linear-gradient(90deg,#f59e0b,#fbbf24)}.gf.r{background:linear-gradient(90deg,#ef4444,#f87171)}
+.ed{margin-top:5px;font-size:.78rem}
+.eb{display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;border-radius:var(--radius);font-size:.85rem;font-weight:600;margin-bottom:14px}
+.eOk{background:#ecfdf5;color:var(--success);border:1px solid #a7f3d0}
+.eW{background:#fffbeb;color:var(--warning);border:1px solid #fde68a}
+.eD{background:#fef2f2;color:var(--danger);border:1px solid #fecaca}
+
+.ip{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);margin-bottom:12px;background:#fff}
+.iph{background:linear-gradient(135deg,var(--blue-deeper),var(--blue-dark));color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+.iph .il{display:flex;align-items:center;gap:7px;font-weight:600;font-size:.87rem}
+.iph .ir{display:flex;align-items:center;gap:5px;font-size:.74rem}
+.ipb{padding:14px 16px}
+.imr{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.im{background:var(--border-light);border-radius:7px;padding:10px;text-align:center}
+.im .iml{font-size:.68rem;color:var(--fg-muted)}.im .imv{font-size:1.05rem;font-weight:700;margin-top:1px}
+.idata{font-family:"SF Mono","Fira Code",monospace;font-size:.78rem;background:#f8fafc;border:1px solid var(--border);border-radius:7px;padding:9px 11px;margin-bottom:10px;max-height:90px;overflow-y:auto}
+.iact{display:flex;gap:6px;flex-wrap:wrap}
+
+.lb{max-height:220px;overflow-y:auto}
+.li{display:flex;align-items:flex-start;gap:7px;padding:7px 0;border-bottom:1px solid var(--border-light);font-size:.78rem}
+.li:last-child{border:none}
+.lt{color:var(--fg-muted);white-space:nowrap;font-family:monospace;font-size:.72rem;min-width:62px}
+
+.mm{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;justify-content:center;align-items:center}
+.mm.show{display:flex}
+.mb{background:#fff;border-radius:var(--radius);width:92%;max-width:460px;box-shadow:var(--shadow-lg);overflow:hidden;animation:mi .25s ease}
+@keyframes mi{from{transform:scale(.93);opacity:0}to{transform:scale(1);opacity:1}}
+.mh{padding:14px 18px;font-weight:600;border-bottom:1px solid var(--border-light);display:flex;align-items:center;gap:7px;font-size:.9rem}
+.mbd{padding:16px 18px;font-size:.85rem;line-height:1.7}
+.mf{padding:10px 18px;border-top:1px solid var(--border-light);display:flex;justify-content:flex-end;gap:6px}
+
+.cb{display:flex;align-items:flex-end;gap:5px;height:110px;padding:6px 0}
+.cc{flex:1;background:linear-gradient(180deg,var(--blue),var(--blue-lighter));border-radius:3px 3px 0 0;min-width:18px;transition:height .4s;position:relative}
+.cc:hover{opacity:.85}
+.cc .cv{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:.66rem;font-weight:600;color:var(--fg)}
+.cl{display:flex;gap:5px;margin-top:3px}
+.cl span{flex:1;text-align:center;font-size:.64rem;color:var(--fg-muted)}
+canvas.chart{width:100%;border-radius:8px;background:#fff;border:1px solid var(--border)}
+
+.ac{border-left:4px solid var(--danger);background:#fef2f2;border-radius:0 var(--radius) var(--radius) 0;padding:12px 15px;margin-bottom:8px}
+.ac .at{font-weight:600;color:var(--danger);margin-bottom:3px;font-size:.85rem}
+.ac .ad{font-size:.78rem;color:#7f1d1d}
+.ac.warn{border-color:var(--warning);background:#fffbeb}
+.ac.warn .at{color:var(--warning)}.ac.warn .ad{color:#78350f}
+
+.frame-box{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:14px;font-family:"SF Mono","Fira Code",monospace;font-size:.78rem;line-height:1.8;overflow-x:auto;margin-bottom:10px}
+.frame-box .hdr{color:#60a5fa}.frame-box .pay{color:#34d399}.frame-box .crc{color:#fbbf24}.frame-box .err{color:#ef4444}
+
+.ts-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-light);font-size:.78rem}
+.ts-row:last-child{border:none}
+.ts-time{font-family:monospace;font-size:.7rem;color:var(--fg-muted);min-width:130px}
+.ts-key{min-width:80px;font-weight:600}
+.ts-val{color:var(--blue);font-family:monospace}
+
+.io-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.io-item{background:var(--border-light);border-radius:8px;padding:10px;display:flex;align-items:center;gap:8px;transition:all .2s}
+.io-item:hover{background:#e2e8f0}
+.io-led{width:12px;height:12px;border-radius:50%;flex-shrink:0;transition:all .3s;box-shadow:0 0 4px rgba(0,0,0,.1)}
+.io-led.on{background:var(--success);box-shadow:0 0 8px rgba(16,185,129,.5)}
+.io-led.off{background:#94a3b8}
+.io-led.warn{background:var(--warning);box-shadow:0 0 8px rgba(245,158,11,.5)}
+.io-led.err{background:var(--danger);box-shadow:0 0 8px rgba(239,68,68,.5);animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+.io-info{flex:1;min-width:0}
+.io-name{font-size:.78rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.io-status{font-size:.68rem;color:var(--fg-muted)}
+
+.ctrl-device{border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;transition:all .2s}
+.ctrl-device:hover{border-color:var(--blue-lighter)}
+.ctrl-hd{padding:12px 16px;background:var(--border-light);display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.ctrl-hd:hover{background:#e2e8f0}
+.ctrl-hd .dev-name{display:flex;align-items:center;gap:8px;font-weight:600;font-size:.87rem}
+.ctrl-hd .dev-status{display:flex;align-items:center;gap:6px;font-size:.78rem}
+.ctrl-bd{padding:14px 16px;display:none;border-top:1px solid var(--border-light)}
+.ctrl-bd.open{display:block}
+.ctrl-param{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.ctrl-param .cp-item{display:flex;flex-direction:column;gap:2px}
+.ctrl-param .cp-label{font-size:.72rem;color:var(--fg-muted)}
+.ctrl-param .cp-val{font-size:.85rem;font-weight:600;font-family:monospace}
+.ctrl-cmd{display:flex;gap:6px;flex-wrap:wrap}
+
+.heatmap{display:grid;gap:3px}
+.hm-cell{border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60px;font-size:.72rem;font-weight:600;transition:all .3s;cursor:default;position:relative}
+.hm-cell:hover{transform:scale(1.05);z-index:1}
+.hm-cell .hm-zone{font-size:.68rem;opacity:.7}
+.hm-cell .hm-val{font-size:1rem}
+
+.print-area{background:#1e293b;color:#e2e8f0;border-radius:8px;padding:14px;font-family:"SF Mono","Fira Code",monospace;font-size:.76rem;line-height:1.7;max-height:200px;overflow-y:auto;white-space:pre-wrap;word-break:break-all}
+
+/* ===== 边缘计算 ===== */
+.edge-flow{display:flex;align-items:center;justify-content:center;gap:6px;padding:14px;margin:10px 0;font-size:.82rem;flex-wrap:wrap}
+.edge-node{background:var(--border-light);border:2px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center;min-width:110px;transition:all .3s;position:relative}
+.edge-node:hover{border-color:var(--blue-lighter);box-shadow:var(--shadow)}
+.edge-node .en-icon{font-size:1.4rem;margin-bottom:2px}
+.edge-node .en-label{font-size:.72rem;color:var(--fg-muted)}
+.edge-node .en-val{font-size:1rem;font-weight:700}
+.edge-arrow{color:var(--blue);font-size:1.2rem;font-weight:700}
+.edge-arrow.anomaly{color:var(--danger);animation:blink 1s infinite}
+.edge-rule{border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:8px;font-size:.82rem;display:flex;align-items:center;gap:8px}
+.edge-rule .er-icon{font-size:1.1rem}
+.edge-rule .er-cond{flex:1;font-weight:500}
+.edge-rule .er-act{font-size:.76rem;color:var(--fg-muted)}
+.edge-queue{background:#0f172a;border-radius:8px;padding:12px;font-family:"SF Mono","Fira Code",monospace;font-size:.76rem;color:#e2e8f0;max-height:180px;overflow-y:auto;line-height:1.7}
+.edge-queue .eq-normal{color:#34d399}
+.edge-queue .eq-anomaly{color:#ef4444;font-weight:600}
+.edge-queue .eq-upload{color:#60a5fa}
+
+/* ===== 溯源 ===== */
+.trace-timeline{position:relative;padding-left:28px;margin:10px 0}
+.trace-timeline::before{content:'';position:absolute;left:10px;top:0;bottom:0;width:2px;background:var(--border)}
+.trace-step{position:relative;padding:10px 0 10px 14px;font-size:.82rem;border-bottom:1px solid var(--border-light)}
+.trace-step:last-child{border:none}
+.trace-step::before{content:'';position:absolute;left:-22px;top:14px;width:10px;height:10px;border-radius:50%;background:var(--blue);border:2px solid #fff;box-shadow:0 0 0 2px var(--blue)}
+.trace-step.done::before{background:var(--success);box-shadow:0 0 0 2px var(--success)}
+.trace-step.warn::before{background:var(--warning);box-shadow:0 0 0 2px var(--warning)}
+.trace-step.err::before{background:var(--danger);box-shadow:0 0 0 2px var(--danger)}
+.trace-step .ts-title{font-weight:600;margin-bottom:2px}
+.trace-step .ts-detail{font-size:.76rem;color:var(--fg-muted);line-height:1.6}
+.loc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.loc-cell{border:1px solid var(--border);border-radius:6px;padding:6px;text-align:center;font-size:.7rem;cursor:pointer;transition:all .2s;min-height:36px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.loc-cell:hover{border-color:var(--blue);background:var(--blue-bg)}
+.loc-cell.occupied{background:#dbeafe;border-color:var(--blue-light)}
+.loc-cell.alert{background:#fef2f2;border-color:var(--danger)}
+.loc-cell .loc-id{font-weight:600;font-size:.68rem}
+.loc-cell .loc-rfid{font-size:.6rem;color:var(--fg-muted);font-family:monospace}
+
+.sf{border-top:1px solid var(--border);background:#fff;padding:16px;text-align:center;font-size:.7rem;color:var(--fg-muted)}
+.fi2{max-width:var(--max-w);margin:0 auto}
+.fl2{display:flex;justify-content:center;gap:16px;margin-bottom:5px;flex-wrap:wrap}
+.fl2 a{color:var(--fg-muted);transition:color .2s}.fl2 a:hover{color:var(--blue)}
+.fc{margin-top:5px;line-height:1.7}
+
+/* ===== 报表 ===== */
+.report-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:14px}
+.report-item{background:var(--border-light);border-radius:8px;padding:12px}
+.report-item .ri-label{font-size:.72rem;color:var(--fg-muted);margin-bottom:2px}
+.report-item .ri-val{font-size:.88rem;font-weight:600;line-height:1.5}
+
+@media(max-width:768px){
+  .hero-inner{flex-direction:column;text-align:center}
+  .hero-stats{justify-content:center}
+  .hs{min-width:75px;padding:9px 12px}.hs .v{font-size:1.1rem}
+  .hero-text h1{font-size:1.1rem}
+  .eg,.fr{grid-template-columns:1fr;gap:8px}
+  .fr{flex-direction:column;gap:0}
+  .dg{grid-template-columns:1fr 1fr}
+  .card{padding:14px}.main-wrap{padding:10px 6px}
+  .nav-tab{padding:4px 6px;font-size:.56rem}.nav-tab .ti{font-size:.85rem}
+  .nav-brand span{display:none}
+  .imr{grid-template-columns:1fr 1fr}
+  .io-grid{grid-template-columns:1fr 1fr}
+  .ctrl-param{grid-template-columns:1fr}
+  .heatmap{grid-template-columns:1fr 1fr!important}
+  .edge-flow{flex-direction:column}
+  .loc-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){
+  .dg{grid-template-columns:1fr}
+  .nav-tabs{gap:0;padding:1px}.nav-tab{padding:3px 5px;font-size:.52rem}
+  .hs{min-width:60px;padding:7px 8px}.hs .v{font-size:1rem}
+  .imr{grid-template-columns:1fr}
+  .io-grid{grid-template-columns:1fr}
+  .heatmap{grid-template-columns:1fr!important}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== 导航 ===== -->
+<nav class="top-nav">
+  <div class="nav-inner">
+    <div class="nav-brand"><div class="logo">📦</div><span>仓储追踪管理系统</span></div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" data-m="dashboard"><span class="ti">📊</span>总览</button>
+      <button class="nav-tab" data-m="rfid"><span class="ti">📡</span>RFID</button>
+      <button class="nav-tab" data-m="env"><span class="ti">🌡️</span>环境</button>
+      <button class="nav-tab" data-m="iot"><span class="ti">⚙️</span>IoT</button>
+      <button class="nav-tab" data-m="comm"><span class="ti">🔗</span>通信</button>
+      <button class="nav-tab" data-m="ctrl"><span class="ti">🎮</span>控制</button>
+      <button class="nav-tab" data-m="edge"><span class="ti">🧠</span>边缘</button>
+      <button class="nav-tab" data-m="trace"><span class="ti">📍</span>溯源</button>
+      <button class="nav-tab" data-m="stats"><span class="ti">📈</span>统计</button>
+    </div>
+    <div class="nav-right"><span class="pd"></span><span id="sysS">在线</span></div>
+  </div>
+</nav>
+
+<!-- ===== Hero ===== -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <h1>智能快递驿站 · 仓储追踪</h1>
+      <p>RFID识别 · 环境监测 · 多传感采集 · 通信仿真 · 远程控制 · 安防联动 · 边缘计算 · 全链路溯源</p>
+    </div>
+    <div class="hero-stats">
+      <div class="hs"><div class="v" id="hPkg">0</div><div class="l">今日入库</div></div>
+      <div class="hs"><div class="v" id="hScan">0</div><div class="l">扫描次数</div></div>
+      <div class="hs"><div class="v" id="hAlert">0</div><div class="l">预警</div></div>
+      <div class="hs"><div class="v" id="hDev">3/11</div><div class="l">设备在线</div></div>
+      <div class="hs"><div class="v" id="hCtrl">0</div><div class="l">下发指令</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 主内容 ===== -->
+<div class="main-wrap"><div class="main-inner">
+
+<!-- ====== 总览 ====== -->
+<div class="mod active" id="mod-dashboard">
+  <div class="tip">💡 系统总览：实时汇总入库量、环境状态、设备连接、通信质量、安防状态、边缘网关与异常预警。上行采集+下行控制双向闭环，边缘计算本地研判。</div>
+  <div class="dg">
+    <div class="dc"><div class="dl">今日入库</div><div class="dv" id="dPkg">0</div><div class="ds" id="dPkgS">--</div></div>
+    <div class="dc green"><div class="dl">环境状态</div><div class="dv" id="dEnv">正常</div><div class="ds" id="dEnvS">达标</div></div>
+    <div class="dc"><div class="dl">RFID扫描</div><div class="dv" id="dScan">0</div><div class="ds">累计</div></div>
+    <div class="dc yellow"><div class="dl">异常预警</div><div class="dv" id="dAlert">0</div><div class="ds" id="dAlertS">暂无</div></div>
+    <div class="dc purple"><div class="dl">通信质量</div><div class="dv" id="dComm">良好</div><div class="ds" id="dCommS">时延 --</div></div>
+    <div class="dc teal"><div class="dl">传感器总数</div><div class="dv">11</div><div class="ds" id="dSensS">在线 --</div></div>
+    <div class="dc orange"><div class="dl">安防状态</div><div class="dv" id="dSec">安全</div><div class="ds" id="dSecS">门禁正常</div></div>
+    <div class="dc purple"><div class="dl">边缘网关</div><div class="dv" id="dEdge">在线</div><div class="ds" id="dEdgeS">本地研判</div></div>
+  </div>
+  <div class="card"><div class="ch"><div class="ct"><span class="bar"></span>设备 IO 状态</div></div><div class="io-grid" id="ioGrid"></div></div>
+  <div class="card"><div class="ch"><div class="ct"><span class="bar"></span>异常预警</div></div><div id="dashAlerts"><div style="color:var(--fg-muted);text-align:center;padding:10px;font-size:.82rem">✅ 暂无异常</div></div></div>
+  <div class="card"><div class="ch"><div class="ct"><span class="bar"></span>最近操作</div></div><div class="lb" id="dashLog"><div class="li"><span class="lt">--:--:--</span><span>等待…</span></div></div></div>
+</div>
+
+<!-- ====== RFID ====== -->
+<div class="mod" id="mod-rfid">
+  <div class="tip">💡 RFID 16位编码 = 网点(4) + 类型(2) + 批次(6) + 校验(4)。支持增删查、时效预估、异常预警、称重绑定与室内定位。</div>
+  <div class="card">
+    <div class="ch"><div class="ct"><span class="bar"></span>RFID 编码录入</div><button class="btn bo bs" onclick="clrRFID()">清空</button></div>
+    <div class="fr">
+      <div class="fg" style="flex:2"><label class="fl">RFID 编码</label><input class="fi" id="rfidIn" maxlength="16" placeholder="16位编码" style="font-family:monospace;letter-spacing:1px;text-transform:uppercase"></div>
+      <div class="fg"><label class="fl">采集模式</label><select class="fs" id="rfidMode"><option value="manual">手动</option><option value="auto">自动采集</option></select></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label class="fl">操作员</label><input class="fi" id="rfidOp" placeholder="姓名"></div>
+      <div class="fg"><label class="fl">包裹重量(kg)</label><input class="fi" id="rfidWt" type="number" step="0.01" placeholder="称重传感器"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label class="fl">包裹尺寸 L×W×H(cm)</label><input class="fi" id="rfidDim" placeholder="超声波传感器自动填充" readonly></div>
+      <div class="fg"><label class="fl">表面温度(℃)</label><input class="fi" id="rfidSurf" placeholder="红外测温" readonly></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label class="fl">库区</label><select class="fs" id="rfidZone"><option value="">自动分配</option><option value="A">A区</option><option value="B">B区</option><option value="C">C区</option><option value="D">D区</option><option value="E">E区</option><option value="F">F区</option><option value="G">G区</option><option value="H">H区</option></select></div>
+      <div class="fg"><label class="fl">货架位置</label><input class="fi" id="rfidShelf" placeholder="如 A-03-02（区-列-层）"></div>
+    </div>
+    <div class="bg">
+      <button class="btn bp" onclick="parseRFID()">🔍 解析入库</button>
+      <button class="btn bo" onclick="simScan()">📡 模拟扫描</button>
+      <button class="btn bo" onclick="readWt()">⚖️ 读取称重</button>
+      <button class="btn bo" onclick="readDim()">📏 读取尺寸</button>
+      <button class="btn bo" onclick="readSurf()">🔥 读取表面温度</button>
+      <button class="btn bo" onclick="readLoc()">📍 读取定位</button>
+    </div>
+  </div>
+  <div class="card"><div class="ch"><div class="ct"><span class="bar"></span>解析结果</div></div><div id="rfidRes" style="min-height:40px;color:var(--fg-muted);font-size:.84rem">尚未解析</div></div>
+  <div class="card">
+    <div class="ch"><div class="ct"><span class="bar"></span>入库记录</div>
+      <div style="display:flex;gap:5px"><input class="fi" id="searchIn" placeholder="搜索" style="width:150px;padding:5px 9px;font-size:.78rem" oninput="filterTbl()">
+      <button class="btn bo bs" onclick="exportCSV()">📥 导出</button></div></div>
+    <div class="tw"><table><thead><tr><th>时间</th><th>RFID</th><th>网点</th><th>类型</th><th>批次</th><th>重量</th><th>尺寸</th><th>表面温度</th><th>库区</th><th>货架</th><th>时效</th><th>状态</th><th>操作</th></tr></thead>
+    <tbody id="rfidTB"><tr><td colspan="13" style="text-align:center;color:var(--fg-muted)">暂无</td></tr></tbody></table></div>
+  </div>
+
+  <!-- 模拟数据录入 -->
+  <div class="card">
+    <div class="ch"><div class="ct"><span class="bar"></span>模拟数据录入</div>
+      <div style="display:flex;align-items:center;gap:6px"><span class="io-led" id="simLed" style="width:10px;height:10px"></span><span id="simStatus" style="font-size:.78rem;color:var(--fg-muted)">待机</span></div></div>
+    <div class="tip">💡 自动模拟包裹入库：随机生成 RFID 编码、物理参数、库区货架等数据，快速填充数据库用于功能演示与测试。</div>
+    <div class="fr">
+      <div class="fg"><label class="fl">批量数量</label><input class="fi" id="simBatchN" type="number" value="10" min="1" max="200"></div>
+      <div class="fg"><label class="fl">录入间隔(秒)</label><input class="fi" id="simInterval" type="number" value="3" min="1" max="60"></div>
+      <div class="fg"><label class="fl">数据模板</label><select class="fs" id="simTemplate"><option value="random">随机混合</option><option value="standard">标准件为主</option><option value="cold">冷链为主</option><option value="fragile">易碎品为主</option><option value="urgent">加急件为主</option><option value="big">大件为主</option></select></div>
+    </div>
+    <div class="bg">
+      <button class="btn bp" onclick="simBatchEntry()">📦 批量录入</button>
+      <button class="btn bo" onclick="simSingleEntry()">📥 录入1条</button>
+      <button class="btn bo" onclick="simToggleAuto()">⏱ <span id="simAutoLabel">开启自动录入</span></button>
+      <button class="btn bd" onclick="simClearAll()">🗑️ 清空全部</button>
+    </div>
+    <div id="simProgress" style="display:none;margin-top:10px">
+      <div style="background:var(--border-light);border-radius:4px;height:6px;overflow:hidden">
+        <div id="simProgressBar" style="height:100%;background:linear-gradient(90deg,var(--blue),var(--blue-lighter));border-radius:4px;transition:width .3s;width:0%"></div>
+      </div>
+      <div style="font-size:.76rem;color:var(--fg-muted);margin-top:4px" id="simProgressText">录入中...</div>
+    </div>
+    <div style="margin-top:10px;font-size:.78rem;color:var(--fg-muted)">
+      📊 当前数据库：<b id="simTotalCount">0</b> 条 | 今日入库：<b id="simTodayCount">0</b> 条 | 正常 <b id="simNormalCount">0</b> | 预警 <b id="simWarnCount">0</b> | 超时 <b id="simOverCount">0</b>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 环境 ====== -->
+<div class="mod" id="mod-env">
+  <div class="tip">💡 标准区间：温度10~25℃，湿度40%~60%。自动计算偏差判定状态。支持滑动平均滤波降噪。</div>
+  <div class="eg">
+    <div class="ec"><div class="ei">🌡️</div><div class="el">当前温度</div><div class="ev" id="eT">--<span class="eu">℃</span></div><div class="er">标准：10~25℃</div><div class="gauge"><div class="gf g" id="tG" style="width:0%"></div></div><div class="ed" id="tD">偏差：--</div></div>
+    <div class="ec"><div class="ei">💧</div><div class="el">当前湿度</div><div class="ev" id="eH">--<span class="eu">%</span></div><div class="er">标准：40%~60%</div><div class="gauge"><div class="gf g" id="hG" style="width:0%"></div></div><div class="ed" id="hD">偏差：--</div></div>
+  </div>
+  <div id="envBar" class="eb eOk">✅ 仓储环境正常</div>
+  <div class="dg">
+    <div class="dc purple"><div class="dl">滤波模式</div><div class="dv" id="filterMode">原始值</div><div class="ds">窗口大小：<span id="filterWin">5</span></div></div>
+    <div class="dc teal"><div class="dl">原始温度</div><div class="dv" id="rawT">--</div><div class="ds">滤波前</div></div>
+    <div class="dc teal"><div class="dl">原始湿度</div><div class="dv" id="rawH">--</div><div class="ds">滤波前</div></div>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="ct"><span class="bar"></span>数据录入 / 传感器采集</div></div>
+    <div class="fr">
+      <div class="fg"><label class="fl">温度(℃)</label><input class="fi" id="mT" type="number" step="0.1" placeholder="22.5"></div>
+      <div class="fg"><label class="fl">湿度(%)</label><input class="fi" id="mH" type="number" step="0.1" placeholder="55"></div>
+      <div class="fg"><label class="fl">滑动窗口</label><select class="fs" id="fWin"><option value="3">3</option><option value="5" selected>5</option><option value="7">7</option><option value="10">10</option></select></div>
+    </div>
+    <div class="bg">
+      <button class="btn bp" onclick="submitEnv()">📊 提交</button>
+      <button class="btn bo" onclick="fetchSens()">📡 读取传感器</button>
+      <button class="btn bo" onclick="toggleFilt()">🔄 切换滤波</button>
+      <button class="btn bo" onclick="toggleAutoEnv()">⏱ 自动监测</button>
+    </div>
+  </div>
+  <div class="card"><div class="ch"><div class="ct"><span class="bar"></span>监测历史</div></div>
+    <div class="tw"><table><thead><tr><th>时间</th><th>温度</th><th>湿度</th><th>温度偏差</th><th>湿度偏差</th><th>滤波</th><th>状态</th></tr></thead>
+    <tbody id="envTB"><tr><td colspan="7" style="text-align:center;color:var(--fg-muted)">暂无</td></tr></tbody></table></div>
+  </div>
+</div>
+
+<!-- ====== IoT ====== -->
+<div class="mod" id="mod-iot">
+  <div class="tip">💡 标准化 IoT 模块：11类设备统一管理（7采集+4安防执行）。支持手动/自动双模式。定位节点支持库区货架位置采集。</div>
+
+  <div class="ip"><div class="iph"><div class="il">📡 RFID 读写器</div><div class="ir"><span class="io-led on" id="rfidLed"></span><span id="rfidML">手动</span></div></div>
+    <div class="ipb"><div class="imr"><div class="im"><div class="iml">型号</div><div class="imv">UHF-R2000</div></div><div class="im"><div class="iml">频段</div><div class="imv">840-960</div></div><div class="im"><div class="iml">扫描</div><div class="imv" id="iotRC">0</div></div></div>
+    <div class="idata" id="iotRD">等待…</div><div class="iact"><button class="btn bp bs" onclick="iotRFScan()">扫描</button><button class="btn bo bs" onclick="iotRFToggle()">切换模式</button></div></div></div>
+
+  <div class="ip"><div class="iph"><div class="il">🌡️ 温湿度传感器</div><div class="ir"><span class="io-led on" id="sensLed"></span><span id="sensML">手动</span></div></div>
+    <div class="ipb"><div class="imr"><div class="im"><div class="iml">型号</div><div class="imv">SHT30</div></div><div class="im"><div class="iml">精度</div><div class="imv">±0.3℃</div></div><div class="im"><div class="iml">采集</div><div class="imv" id="iotSC">0</div></div></div>
+    <div class="idata" id="iotSD">等待…</div><div class="iact"><button class="btn bp bs" onclick="iotSensR()">读取</button><button class="btn bo bs" onclick="iotSensT()">切换模式</button></div></div></div>
+
+  <div class="ip"><div class="iph"><div class="il">⚖️ 称重传感器</div><div class="ir"><span class="io-led on" id="wtLed"></span><span id="wtML">手动</span></div></div>
+    <div class="ipb"><div class="imr"><div class="im"><div class="iml">型号</div><div class="imv">HX711</div></div><div class="im"><div class="iml">量程</div><div class="imv">0-50kg</div></div><div class="im"><div class="iml">精度</div><div class="imv">±5g</div></div></div>
+    <div class="idata" id="iotWD">等待…</div><div class="iact"><button class="btn bp bs" onclick="iotWtR()">读取</button><button class="btn bo bs" onclick="iotWtT()">切换模式</button></div></div></div>
+
+  <div class="ip"><div class="iph"><div class="il">📏 超声波测距传感器</div><div class="ir"><span class="io-led on" id="usLed"></span><span id="usML">手动</span></div></div>
+    <div class="ipb"><div class="imr"><div class="im"><div class="iml">型号</div><div class="imv">HC-SR04</div></div><div class="im"><div class="iml">量程</div><div class="imv">2-400cm</div></div><div class="im"><div class="iml">精度</div><div class="imv">±3mm</div></div></div>
+    <div class="idata" id="iotUD">等待…</div><div class="iact"><button class="btn bp bs" onclick="iotUsR()">读取</button><button class="btn bo bs" onclick="iotUsT()">切换模式</button></div></div></div>
+
+  <div class="ip"><div class="iph"><div class="il">🔥 红外测温传感器</div><div class="ir"><span class="io-led on" id="irLed"></span><span id="irML">手动</span></div></div>
+    <div class="ipb"><div class="imr"><div class="im"><div class="iml">型号</div><div class="imv">MLX90614</div></div><div class="im"><div class="iml">量程</div><div class="imv">-70~380℃</div></div><div class="im"><div class="iml">精度</div><div class="imv">±0.5℃</div></div></div>
+    <div class="idata" id="iotIR">等待…</div><div class="iact"><button class="btn bp bs" onclick="iotIrR()">读取</button><button class="btn bo bs" onclick="iotIrT()">切换模式</button></div></div></div>
+
+  <div class="ip"><div class="iph"><div class="il">📐 倾角传感器</div><div class="ir"><span class="io-led on" id="tiltLed"></span><span id="tiltML">手动</span></div></div>
+    <div class="ipb"><div class="imr"><div class="im"><div class="iml">型号</div><div class="imv">MPU6050</div></div><div class="im"><div class="iml">量程</div><div class="imv">±180°</div></div><div class="im"><div class="iml">精度</div><div class="imv">±0.1°</div></div></div>
+    <div class="idata" id="iotTT">等待…</div><div class="iact"><button class="btn bp bs" onclick="iotTiltR()">读取</button><button class="btn bo bs" onclick="iotTiltT()">切换模式</button></div></div></div>
+
+  <div class="ip"><div class="iph"><div class="il">📳 振动传感器</div><div class="ir"><span class="io-led on" id="vibLed"></span><span id="vibML">手动</span></div></div>
+    <div class="ipb"><div class="imr"><div class="im"><div class="iml">型号</div><div class="imv">ADXL345</div></div><div class="im"><div class="iml">量程</div><div class="imv">±16g</div></div><div class="im"><div class="iml">精度</div><div class="imv">±0.04g</div></div></div>
+    <div class="idata" id="iotVB">等待…</div><div class="iact"><button class="btn bp bs" onclick="iotVibR()">读取</button><button class="btn bo bs" onclick="iotVibT()">切换模式</button></div></div></div>
+
+  <!-- 安防设备 -->
+  <div class="ip"><div class="iph" style="background:linear-gradient(135deg,#92400e,#b45309)"><div class="il">🚪 门磁传感器</div><div class="ir"><span class="io-led on" id="doorLed"></span><span id="doorML">手动</span></div></div>
+    <div class="ipb"><div class="imr"><div class="im"><div class="iml">型号</div><div class="imv">MC-31</div></div><div class="im"><div class="iml">类型</div><div class="imv">干簧管</div></div><div class="im"><div class="iml">状态</div><div class="imv" id="iotDoor">已关闭</div></div></div>
+    <div class="idata" id="iotDoorD">等待…</div><div class="iact"><button class="btn bp bs" onclick="readDoor()">读取</button><button class="btn bo bs" onclick="iotDoorT()">切换模式</button></div></div></div>
+
+  <div class="ip"><div class="iph" style="background:linear-gradient(135deg,#92400e,#b45309)"><div class="il">🔴 激光对射传感器</div><div class="ir"><span class="io-led on" id="laserLed"></span><span id="laserML">手动</span></div></div>
+    <div class="ipb"><div class="imr"><div class="im"><div class="iml">型号</div><div class="imv">AB20-30</div></div><div class="im"><div class="iml">距离</div><div class="imv">0-30m</div></div><div class="im"><div class="iml">状态</div><div class="imv" id="iotLaser">正常</div></div></div>
+    <div class="idata" id="iotLaserD">等待…</div><div class="iact"><button class="btn bp bs" onclick="readLaser()">读取</button><button class="btn bo bs" onclick="iotLaserT()">切换模式</button></div></div></div>
+
+  <div class="ip"><div class="iph" style="background:linear-gradient(135deg,#991b1b,#dc2626)"><div class="il">🚨 声光报警器</div><div class="ir"><span class="io-led off" id="alarmLed"></span><span id="alarmML">停止</span></div></div>
+    <div class="ipb"><div class="imr"><div class="im"><div class="iml">型号</div><div class="imv">SG-01</div></div><div class="im"><div class="iml">音量</div><div class="imv">110dB</div></div><div class="im"><div class="iml">状态</div><div class="imv" id="iotAlarm">待机</div></div></div>
+    <div class="idata" id="iotAlarmD">等待指令…</div><div class="iact"><button class="btn bd bs" onclick="triggerAlarm()">🚨 触发报警</button><button class="btn bp bs" onclick="stopAlarm()">✅ 停止报警</button><button class="btn bo bs" onclick="iotAlarmT()">切换模式</button></div></div></div>
+
+  <div class="ip"><div class="iph" style="background:linear-gradient(135deg,#991b1b,#dc2626)"><div class="il">🔌 继电器</div><div class="ir"><span class="io-led off" id="relayLed"></span><span id="relayML">断开</span></div></div>
+    <div class="ipb"><div class="imr"><div class="im"><div class="iml">型号</div><div class="imv">SRD-05VDC</div></div><div class="im"><div class="iml">通道</div><div class="imv">4路</div></div><div class="im"><div class="iml">负载</div><div class="imv">10A/250V</div></div></div>
+    <div class="idata" id="iotRelayD">等待指令…</div><div class="iact"><button class="btn bw bs" onclick="relayOn()">⚡ 闭合</button><button class="btn bo bs" onclick="relayOff()">🔓 断开</button><button class="btn bo bs" onclick="iotRelayT()">切换模式</button></div></div></div>
+
+  <!-- 室内定位节点 -->
+  <div class="ip"><div class="iph" style="background:linear-gradient(135deg,#6d28d9,#7c3aed)"><div class="il">📍 室内定位节点</div><div class="ir"><span class="io-led on" id="locLed"></span><span id="locML">UWB</span></div></div>
+    <div class="ipb"><div class="imr"><div class="im"><div class="iml">型号</div><div class="imv">DW1000</div></div><div class="im"><div class="iml">精度</div><div class="imv">±10cm</div></div><div class="im"><div class="iml">定位</div><div class="imv" id="iotLoc">0</div></div></div>
+    <div class="idata" id="iotLocD">等待…</div><div class="iact"><button class="btn bp bs" onclick="readLoc()">📍 定位</button><button class="btn bo bs" onclick="iotLocT()">切换模式</button></div></div></div>
+
+  <div class="card"><div class="ch"><div class="ct"><span class="bar"></span>采集配置</div></div>
+    <div class="fr">
+      <div class="fg"><label class="fl">RFID(s)</label><input class="fi" id="cfgR" type="number" value="30" min="5"></div>
+      <div class="fg"><label class="fl">温湿度(s)</label><input class="fi" id="cfgS" type="number" value="60" min="5"></div>
+      <div class="fg"><label class="fl">称重(s)</label><input class="fi" id="cfgW" type="number" value="30" min="5"></div>
+      <div class="fg"><label class="fl">超声波(s)</label><input class="fi" id="cfgU" type="number" value="30" min="5"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label class="fl">红外(s)</label><input class="fi" id="cfgI" type="number" value="30" min="5"></div>
+      <div class="fg"><label class="fl">倾角(s)</label><input class="fi" id="cfgT" type="number" value="30" min="5"></div>
+      <div class="fg"><label class="fl">振动(s)</label><input class="fi" id="cfgV" type="number" value="30" min="5"></div>
+      <div class="fg"><label class="fl">安防(s)</label><input class="fi" id="cfgSec" type="number" value="10" min="5"></div>
+    </div>
+    <div class="bg"><button class="btn bp" onclick="saveCfg()">💾 保存</button><button class="btn bd bs" onclick="stopAll()">⏹ 停止全部</button></div>
+  </div>
+  <div class="card"><div class="ch"><div class="ct"><span class="bar"></span>设备日志</div></div><div class="lb" id="iotLog"><div class="li"><span class="lt">--:--:--</span><span>等待…</span></div></div></div>
+</div>
+
+<!-- ====== 通信仿真 ====== -->
+<div class="mod" id="mod-comm">
+  <div class="tip">💡 通信链路仿真：模拟 MQTT/Modbus/RFID 三种协议的数据帧传输，计算传输时延与丢包率，支持数据帧拆分与 CRC 校验。支持报文打印输出。</div>
+  <div class="dg">
+    <div class="dc purple"><div class="dl">平均时延</div><div class="dv" id="cDelay">--</div><div class="ds">ms</div></div>
+    <div class="dc"><div class="dl">丢包率</div><div class="dv" id="cLoss">0%</div><div class="ds">累计</div></div>
+    <div class="dc green"><div class="dl">成功帧</div><div class="dv" id="cOk">0</div><div class="ds">已确认</div></div>
+    <div class="dc red"><div class="dl">异常帧</div><div class="dv" id="cErr">0</div><div class="ds">CRC失败</div></div>
+    <div class="dc teal"><div class="dl">总吞吐</div><div class="dv" id="cThr">0</div><div class="ds">bytes</div></div>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="ct"><span class="bar"></span>协议仿真配置</div></div>
+    <div class="fr">
+      <div class="fg"><label class="fl">协议类型</label><select class="fs" id="protoSel"><option value="mqtt">MQTT</option><option value="modbus">Modbus RTU</option><option value="rfid">RFID EPC Gen2</option></select></div>
+      <div class="fg"><label class="fl">模拟带宽(Kbps)</label><input class="fi" id="bw" type="number" value="256" min="1"></div>
+      <div class="fg"><label class="fl">丢包概率(%)</label><input class="fi" id="lossR" type="number" value="2" min="0" max="100" step="0.5"></div>
+    </div>
+    <div class="bg">
+      <button class="btn bp" onclick="simTransmit()">🚀 发送仿真帧</button>
+      <button class="btn bo" onclick="simBurst()">📡 批量发送(10帧)</button>
+      <button class="btn bo" onclick="clearComm()">🗑️ 清除统计</button>
+    </div>
+  </div>
+  <div class="card"><div class="ch"><div class="ct"><span class="bar"></span>协议帧结构解析</div></div><div id="frameDisplay"><div style="color:var(--fg-muted);font-size:.84rem;text-align:center;padding:10px">选择协议并发送帧后显示帧结构</div></div></div>
+  <div class="card"><div class="ch"><div class="ct"><span class="bar"></span>报文打印输出</div><button class="btn bo bs" onclick="clearPrint()">🗑️ 清空</button></div>
+    <div class="print-area" id="printArea">// 报文输出终端\n// 所有通信帧报文将在此打印\n</div></div>
+  <div class="card"><div class="ch"><div class="ct"><span class="bar"></span>传输记录</div></div>
+    <div class="tw"><table><thead><tr><th>时间</th><th>协议</th><th>帧序号</th><th>载荷(bytes)</th><th>时延(ms)</th><th>CRC</th><th>结果</th></tr></thead>
+    <tbody id="commTB"><tr><td colspan="7" style="text-align:center;color:var(--fg-muted)">暂无</td></tr></tbody></table></div></div>
+  <div class="card"><div class="ch"><div class="ct"><span class="bar"></span>链路质量趋势</div></div><div class="cb" id="commChart" style="height:90px"></div><div class="cl" id="commLabels"></div></div>
+</div>
+
+<!-- ====== 远程控制 ====== -->
+<div class="mod" id="mod-ctrl">
+  <div class="tip">💡 远程设备控制：下行指令修改设备参数、启停硬件，实现上行采集+下行控制双向闭环。安防异常自动联动报警与继电器。</div>
+  <div class="dg">
+    <div class="dc green"><div class="dl">上行采集</div><div class="dv" id="ctrlUp">7</div><div class="ds">传感器在线</div></div>
+    <div class="dc orange"><div class="dl">下行控制</div><div class="dv" id="ctrlDown">4</div><div class="ds">执行器在线</div></div>
+    <div class="dc purple"><div class="dl">下发指令</div><div class="dv" id="ctrlCmd">0</div><div class="ds">累计</div></div>
+    <div class="dc"><div class="dl">联动触发</div><div class="dv" id="ctrlLink">0</div><div class="ds">自动响应</div></div>
+  </div>
+  <div id="ctrlDevices"></div>
+  <div class="card">
+    <div class="ch"><div class="ct"><span class="bar"></span>安防联动策略</div></div>
+    <div style="font-size:.82rem;line-height:1.8">
+      <div style="padding:8px 0;border-bottom:1px solid var(--border-light)">🔥 <b>环境异常</b> → 温度/湿度超限 → 自动触发声光报警 → 继电器闭合启动排风</div>
+      <div style="padding:8px 0;border-bottom:1px solid var(--border-light)">📳 <b>包裹破损</b> → 振动>3g 或 倾角>15° → 触发声光报警 → 标记包裹异常</div>
+      <div style="padding:8px 0;border-bottom:1px solid var(--border-light)">🚪 <b>区域入侵</b> → 门磁打开 或 激光对射触发 → 声光报警 → 继电器闭合锁门</div>
+      <div style="padding:8px 0">🔴 <b>表面过热</b> → 红外测温>60℃ → 声光报警 → 继电器闭合启动消防</div>
+    </div>
+    <div class="bg" style="margin-top:10px">
+      <button class="btn bp" onclick="testLinkage()">🧪 测试联动</button>
+      <button class="btn bo" onclick="toggleAutoLinkage()">🔄 <span id="autoLinkLabel">开启自动联动</span></button>
+    </div>
+  </div>
+  <div class="card"><div class="ch"><div class="ct"><span class="bar"></span>指令历史</div><button class="btn bo bs" onclick="clearCtrlLog()">清空</button></div>
+    <div class="tw"><table><thead><tr><th>时间</th><th>设备</th><th>指令</th><th>参数</th><th>结果</th></tr></thead>
+    <tbody id="ctrlTB"><tr><td colspan="5" style="text-align:center;color:var(--fg-muted)">暂无指令</td></tr></tbody></table></div></div>
+</div>
+
+<!-- ====== 边缘计算 ====== -->
+<div class="mod" id="mod-edge">
+  <div class="tip">💡 边缘计算仿真：模拟边缘网关完成本地异常研判，正常数据定时上传、异常数据优先上报的数据分流策略。降低云端负载，提升响应时效。</div>
+
+  <div class="dg">
+    <div class="dc purple"><div class="dl">边缘网关</div><div class="dv" id="edgeStatus">在线</div><div class="ds">DW1000 + STM32</div></div>
+    <div class="dc green"><div class="dl">本地研判</div><div class="dv" id="edgeLocal">0</div><div class="ds">条已处理</div></div>
+    <div class="dc"><div class="dl">正常上传</div><div class="dv" id="edgeNorm">0</div><div class="ds">定时上报</div></div>
+    <div class="dc red"><div class="dl">异常上报</div><div class="dv" id="edgeAnomaly">0</div><div class="ds">优先上报</div></div>
+    <div class="dc teal"><div class="dl">云端接收</div><div class="dv" id="edgeCloud">0</div><div class="ds">累计同步</div></div>
+    <div class="dc orange"><div class="dl">分流比例</div><div class="dv" id="edgeRatio">--</div><div class="ds">正常/异常</div></div>
+  </div>
+
+  <!-- 数据流可视化 -->
+  <div class="card">
+    <div class="ch"><div class="ct"><span class="bar"></span>数据分流流程</div></div>
+    <div class="edge-flow">
+      <div class="edge-node"><div class="en-icon">📡</div><div class="en-label">传感器采集</div><div class="en-val" id="efSens">0</div></div>
+      <div class="edge-arrow">→</div>
+      <div class="edge-node" style="border-color:var(--purple);background:#f5f3ff"><div class="en-icon">🧠</div><div class="en-label">边缘网关</div><div class="en-val" id="efGW">研判中</div></div>
+      <div class="edge-arrow">→</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div class="edge-node" style="border-color:var(--success);background:#ecfdf5"><div class="en-icon">✅</div><div class="en-label">正常 → 定时上传</div><div class="en-val" id="efNorm">0</div></div>
+        <div class="edge-node" style="border-color:var(--danger);background:#fef2f2"><div class="en-icon">⚠️</div><div class="en-label">异常 → 优先上报</div><div class="en-val" id="efAnomaly">0</div></div>
+      </div>
+      <div class="edge-arrow">→</div>
+      <div class="edge-node" style="border-color:var(--blue);background:var(--blue-bg)"><div class="en-icon">☁️</div><div class="en-label">云端同步</div><div class="en-val" id="efCloud">0</div></div>
+    </div>
+  </div>
+
+  <!-- 本地研判规则 -->
+  <div class="card">
+    <div class="ch"><div class="ct"><span class="bar"></span>本地异常研判规则</div>
+      <button class="btn bo bs" onclick="addEdgeRule()">➕ 添加规则</button></div>
+    <div id="edgeRules">
+      <div class="edge-rule"><span class="er-icon">🌡️</span><span class="er-cond">温度 &lt; 10℃ 或 &gt; 25℃</span><span class="er-act">→ 异常优先上报</span></div>
+      <div class="edge-rule"><span class="er-icon">💧</span><span class="er-cond">湿度 &lt; 40% 或 &gt; 60%</span><span class="er-act">→ 异常优先上报</span></div>
+      <div class="edge-rule"><span class="er-icon">📐</span><span class="er-cond">倾角 &gt; 15°</span><span class="er-act">→ 异常优先上报+联动</span></div>
+      <div class="edge-rule"><span class="er-icon">📳</span><span class="er-cond">振动 &gt; 3g</span><span class="er-act">→ 异常优先上报+联动</span></div>
+      <div class="edge-rule"><span class="er-icon">🔥</span><span class="er-cond">表面温度 &gt; 60℃</span><span class="er-act">→ 异常优先上报+消防</span></div>
+      <div class="edge-rule"><span class="er-icon">🚪</span><span class="er-cond">门磁异常 或 激光触发</span><span class="er-act">→ 异常优先上报+锁门</span></div>
+    </div>
+  </div>
+
+  <!-- 边缘上传队列 -->
+  <div class="card">
+    <div class="ch"><div class="ct"><span class="bar"></span>边缘上传队列</div>
+      <div style="display:flex;gap:5px">
+        <select class="fs" id="edgeUploadInterval" style="width:120px;padding:4px 8px;font-size:.78rem">
+          <option value="5">每5秒上传</option><option value="10" selected>每10秒上传</option><option value="30">每30秒上传</option><option value="60">每60秒上传</option>
+        </select>
+        <button class="btn bp bs" onclick="edgeSimOnce()">🧪 模拟研判</button>
+        <button class="btn bo bs" onclick="edgeToggleAuto()">⏱ <span id="edgeAutoLabel">开启自动</span></button>
+      </div>
+    </div>
+    <div class="edge-queue" id="edgeQueue">// 边缘网关上传队列\n// 正常数据定时上传，异常数据优先上报\n</div>
+  </div>
+
+  <!-- 边缘统计图表 -->
+  <div class="card">
+    <div class="ch"><div class="ct"><span class="bar"></span>边缘 vs 云端 处理统计</div></div>
+    <div class="tw"><table><thead><tr><th>时间</th><th>数据类型</th><th>传感器</th><th>研判结果</th><th>上报策略</th><th>状态</th></tr></thead>
+    <tbody id="edgeTB"><tr><td colspan="6" style="text-align:center;color:var(--fg-muted)">等待边缘计算…</td></tr></tbody></table></div>
+  </div>
+</div>
+
+<!-- ====== 溯源 ====== -->
+<div class="mod" id="mod-trace">
+  <div class="tip">💡 包裹全流程溯源：基于室内定位节点(UWB DW1000)，采集库区+货架位置，结合RFID身份、物理参数、姿态状态、环境数据，形成全链路溯源体系。</div>
+
+  <div class="card">
+    <div class="ch"><div class="ct"><span class="bar"></span>包裹溯源查询</div></div>
+    <div class="fr">
+      <div class="fg" style="flex:2"><label class="fl">RFID 编码</label><input class="fi" id="traceRfid" placeholder="输入RFID编码查询溯源链"></div>
+      <div class="fg" style="display:flex;align-items:flex-end"><button class="btn bp" onclick="queryTrace()">🔍 查询溯源</button></div>
+    </div>
+  </div>
+
+  <!-- 溯源时间线 -->
+  <div class="card">
+    <div class="ch"><div class="ct"><span class="bar"></span>全流程溯源链</div></div>
+    <div id="traceTimeline" class="trace-timeline">
+      <div style="color:var(--fg-muted);text-align:center;padding:20px;font-size:.84rem">请输入RFID编码查询包裹溯源链</div>
+    </div>
+  </div>
+
+  <!-- 仓库地图 -->
+  <div class="card">
+    <div class="ch"><div class="ct"><span class="bar"></span>仓库库区地图 · 实时位置</div></div>
+    <div style="margin-bottom:8px;font-size:.78rem;color:var(--fg-muted)">点击库区查看详情，绿色=空闲，蓝色=占用，红色=异常</div>
+    <div class="loc-grid" id="locGrid"></div>
+  </div>
+
+  <!-- 定位节点详情 -->
+  <div class="card">
+    <div class="ch"><div class="ct"><span class="bar"></span>定位节点状态</div></div>
+    <div class="dg">
+      <div class="dc purple"><div class="dl">定位节点</div><div class="dv">8</div><div class="ds">A-H区各1个</div></div>
+      <div class="dc green"><div class="dl">在线节点</div><div class="dv" id="traceOnline">8</div><div class="ds">UWB DW1000</div></div>
+      <div class="dc teal"><div class="dl">定位精度</div><div class="dv">±10cm</div><div class="ds">TDOA算法</div></div>
+      <div class="dc orange"><div class="dl">已定位包裹</div><div class="dv" id="traceLocated">0</div><div class="ds">当前在库</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 统计 ====== -->
+<div class="mod" id="mod-stats">
+  <div class="tip">💡 查询统计：按网点/类型/状态筛选，查看入库趋势与异常分布。综合信息报表汇总全维度数据，支持一键导出。</div>
+  <div class="card">
+    <div class="ch"><div class="ct"><span class="bar"></span>筛选条件</div></div>
+    <div class="fr">
+      <div class="fg"><label class="fl">网点</label><select class="fs" id="stSite"><option value="">全部</option></select></div>
+      <div class="fg"><label class="fl">类型</label><select class="fs" id="stType"><option value="">全部</option><option value="标准件">标准件</option><option value="大件">大件</option><option value="冷链">冷链</option><option value="易碎品">易碎品</option><option value="加急件">加急件</option></select></div>
+      <div class="fg"><label class="fl">状态</label><select class="fs" id="stSt"><option value="">全部</option><option value="正常">正常</option><option value="预警">预警</option><option value="超时">超时</option></select></div>
+    </div>
+    <div class="bg"><button class="btn bp" onclick="runStats()">🔍 查询</button><button class="btn bo" onclick="resetStats()">重置</button></div>
+  </div>
+  <div class="dg">
+    <div class="dc"><div class="dl">查询结果</div><div class="dv" id="sT">0</div><div class="ds">条</div></div>
+    <div class="dc green"><div class="dl">正常</div><div class="dv" id="sN">0</div><div class="ds">--</div></div>
+    <div class="dc yellow"><div class="dl">预警</div><div class="dv" id="sW">0</div><div class="ds">需关注</div></div>
+    <div class="dc red"><div class="dl">超时</div><div class="dv" id="sO">0</div><div class="ds">需处理</div></div>
+  </div>
+
+  <!-- 图表区 -->
+  <div class="card"><div class="ch"><div class="ct"><span class="bar"></span>24小时温湿度折线图</div></div><canvas id="chartLine" class="chart" height="220"></canvas></div>
+  <div class="fr">
+    <div class="card" style="flex:1"><div class="ch"><div class="ct"><span class="bar"></span>包裹状态饼图</div></div><canvas id="chartPie" class="chart" height="220"></canvas></div>
+    <div class="card" style="flex:1"><div class="ch"><div class="ct"><span class="bar"></span>仓库区域热力图</div></div><div class="heatmap" id="heatmap" style="grid-template-columns:repeat(4,1fr)"></div></div>
+  </div>
+  <div class="card"><div class="ch"><div class="ct"><span class="bar"></span>网点分布</div></div><div class="cb" id="siteCh"></div><div class="cl" id="siteLb"></div></div>
+  <div class="card"><div class="ch"><div class="ct"><span class="bar"></span>类型分布</div></div><div class="cb" id="typeCh" style="height:90px"></div><div class="cl" id="typeLb"></div></div>
+
+  <!-- 综合信息报表 -->
+  <div class="card">
+    <div class="ch"><div class="ct"><span class="bar"></span>综合信息报表</div>
+      <button class="btn bp bs" onclick="exportFullReport()">📥 导出全维度报表</button></div>
+    <div class="tip">💡 综合报表汇总：包裹身份(RFID/网点/类型) + 物理参数(重量/尺寸/表面温度) + 姿态状态(倾角/振动) + 位置(库区/货架) + 环境(温湿度) + 边缘研判结果</div>
+    <div class="tw"><table><thead><tr><th>RFID</th><th>网点</th><th>类型</th><th>重量</th><th>尺寸</th><th>表面温度</th><th>倾角</th><th>振动</th><th>库区</th><th>货架</th><th>温度</th><th>湿度</th><th>边缘研判</th><th>状态</th></tr></thead>
+    <tbody id="reportTB"><tr><td colspan="14" style="text-align:center;color:var(--fg-muted)">请查询</td></tr></tbody></table></div>
+  </div>
+
+  <!-- 时序数据库 -->
+  <div class="card">
+    <div class="ch"><div class="ct"><span class="bar"></span>时序数据库 · 最近传感器采样</div>
+      <select class="fs" id="tsSel" style="width:140px;padding:4px 8px;font-size:.78rem" onchange="renderTS()">
+        <option value="all">全部传感器</option><option value="temp">温度</option><option value="humid">湿度</option>
+        <option value="weight">称重</option><option value="dim">超声波</option><option value="surf">红外测温</option>
+        <option value="tilt">倾角</option><option value="vib">振动</option><option value="rfid">RFID</option>
+        <option value="door">门磁</option><option value="laser">激光对射</option><option value="loc">定位</option>
+      </select>
+    </div>
+    <div class="lb" id="tsList" style="max-height:280px"><div style="color:var(--fg-muted);text-align:center;padding:10px;font-size:.82rem">等待数据采集…</div></div>
+  </div>
+
+  <div class="card"><div class="ch"><div class="ct"><span class="bar"></span>查询明细</div></div>
+    <div class="tw"><table><thead><tr><th>时间</th><th>RFID</th><th>网点</th><th>类型</th><th>重量</th><th>尺寸</th><th>表面温度</th><th>库区</th><th>货架</th><th>时效</th><th>状态</th></tr></thead>
+    <tbody id="statTB"><tr><td colspan="11" style="text-align:center;color:var(--fg-muted)">请查询</td></tr></tbody></table></div>
+  </div>
+</div>
+
+</div></div>
+
+<!-- ===== Footer ===== -->
+<footer class="sf">
+  <div class="fi2">
+    <div class="fl2"><a href="#">隐私政策</a><a href="#">服务条款</a><a href="#">数据安全</a><a href="#">帮助中心</a></div>
+    <div class="fc">智能快递驿站 · 仓储追踪管理系统 V5 · RFID识别 · 环境监测 · 多传感采集 · 通信仿真 · 远程控制 · 安防联动 · 边缘计算 · 全链路溯源<br>© 2026 Smart Express Hub. All rights reserved. 本系统仅用于仿真演示，不涉及真实个人数据。</div>
+  </div>
+</footer>
+
+<!-- ===== 确认模态 ===== -->
+<div class="mm" id="cfmModal"><div class="mb"><div class="mh">⚠️ 操作确认</div><div class="mbd" id="cfmMsg"></div><div class="mf"><button class="btn bo" onclick="closeCfm()">取消</button><button class="btn bd" id="cfmOk">确认</button></div></div></div>
+<script>
+/* ===== 全局状态 ===== */
+const A={
+  recs:[],scanN:0,alerts:[],logs:[],
+  envRecs:[],rawTemps:[],rawHums:[],filtOn:false,filtWin:5,sensAuto:false,
+  rfidAuto:false,wtAuto:false,usAuto:false,irAuto:false,tiltAuto:false,vibAuto:false,doorAuto:false,laserAuto:false,alarmAuto:false,relayAuto:false,locAuto:false,
+  iot:{rfidN:0,sensN:0,wtN:0,usN:0,irN:0,tiltN:0,vibN:0,doorN:0,laserN:0,alarmN:0,relayN:0,locN:0},
+  tsdb:[],sec:{doorOpen:false,laserTriggered:false,alarmOn:false,relayOn:false,autoLinkage:false},
+  comm:{ok:0,err:0,totalBytes:0,delays:[],lossCount:0,totalFrames:0,history:[]},
+  ctrl:{cmdCount:0,linkCount:0,history:[]},
+  edge:{total:0,normal:0,anomaly:0,cloudSync:0,autoOn:false,history:[],queue:[]},
+  trace:{located:0},
+  simAuto:false,simTimer:null,
+  devParams:{
+    rfid:{power:30,freq:915,interval:30},sens:{precision:0.3,interval:60},wt:{range:50,interval:30},
+    us:{range:400,interval:30},ir:{range:380,interval:30},tilt:{threshold:15,interval:30},
+    vib:{threshold:3,interval:30},door:{sensitivity:1,interval:10},laser:{distance:30,interval:10},
+    alarm:{volume:110,mode:'sound+light'},relay:{channels:4,load:'10A/250V'},
+    loc:{precision:10,interval:15}
+  }
+};
+
+const siteMap={'BJ01':'北京01站','BJ02':'北京02站','BJ03':'北京03站','SH01':'上海01站','SH02':'上海02站','GZ01':'广州01站','GZ02':'广州02站','SZ01':'深圳01站','SZ02':'深圳02站','CD01':'成都01站','CD02':'成都02站','HZ01':'杭州01站','WH01':'武汉01站','NJ01':'南京01站','CQ01':'重庆01站','TJ01':'天津01站'};
+const typeMap={'01':'标准件','02':'大件','03':'冷链','04':'易碎品','05':'加急件'};
+const ttlMap={'01':48,'02':72,'03':24,'04':48,'05':12};
+
+/* ===== 导航 ===== */
+document.querySelectorAll('.nav-tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.mod').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('mod-'+t.dataset.m).classList.add('active');
+    if(t.dataset.m==='stats')setTimeout(()=>drawCharts(),100);
+    if(t.dataset.m==='trace')renderLocGrid();
+  });
+});
+
+/* ===== 日志 ===== */
+function log(msg){
+  const ts=new Date().toLocaleTimeString('zh-CN',{hour12:false});
+  A.logs.unshift({time:ts,msg});if(A.logs.length>100)A.logs.pop();
+  ['dashLog','iotLog'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.innerHTML=A.logs.slice(0,30).map(l=>`<div class="li"><span class="lt">${l.time}</span><span>${l.msg}</span></div>`).join('');
+  });
+}
+
+/* ===== 预警 ===== */
+function addAlert(level,title,detail){
+  A.alerts.unshift({time:new Date().toLocaleTimeString('zh-CN',{hour12:false}),level,title,detail});
+  if(A.alerts.length>50)A.alerts.pop();
+  const el=document.getElementById('dashAlerts');
+  el.innerHTML=A.alerts.slice(0,10).map(a=>`<div class="ac ${a.level==='warn'?'warn':''}"><div class="at">${a.level==='warn'?'⚠️':'🚨'} ${a.title}</div><div class="ad">${a.time} — ${a.detail}</div></div>`).join('');
+  // 安防联动检查
+  if(A.sec.autoLinkage){
+    const ld=title.includes('环境')||title.includes('温度')||title.includes('湿度');
+    const bd=title.includes('包裹')||title.includes('振动')||title.includes('倾角');
+    const id=title.includes('入侵')||title.includes('门磁')||title.includes('激光');
+    const fd=title.includes('过热')||title.includes('表面温度');
+    if(ld||bd||id||fd){A.ctrl.linkCount++;triggerAlarm();if(ld||id)relayOn();}
+  }
+  // 边缘计算：异常数据优先上报
+  edgeProcessAnomaly(title,detail);
+  sync();
+}
+
+/* ===== 模态 ===== */
+function showCfm(msg,cb){document.getElementById('cfmMsg').textContent=msg;document.getElementById('cfmModal').classList.add('show');document.getElementById('cfmOk').onclick=()=>{closeCfm();cb()}}
+function closeCfm(){document.getElementById('cfmModal').classList.remove('show')}
+
+/* ===== RFID ===== */
+function parseRFID(){
+  const code=document.getElementById('rfidIn').value.trim().toUpperCase();
+  if(!code||code.length!==16||!/^[0-9A-F]{16}$/.test(code)){alert('请输入16位有效十六进制RFID编码');return}
+  const site=code.slice(0,4),type=code.slice(4,6),batch=code.slice(6,12),crc=code.slice(12,16);
+  const siteN=siteMap[site]||'未知网点',typeN=typeMap[type]||'未知类型',ttl=ttlMap[type]||48;
+  const wt=document.getElementById('rfidWt').value||'';
+  const dim=document.getElementById('rfidDim').value||'';
+  const surf=document.getElementById('rfidSurf').value||'';
+  const zone=document.getElementById('rfidZone').value||String.fromCharCode(65+Math.floor(Math.random()*8));
+  const shelf=document.getElementById('rfidShelf').value||`${zone}-${String(Math.floor(Math.random()*10)+1).padStart(2,'0')}-${String(Math.floor(Math.random()*5)+1).padStart(2,'0')}`;
+  const now=new Date();
+  const deadline=new Date(now.getTime()+ttl*3600000);
+  const st=type==='03'?'预警':'正常';
+  const rec={time:now.toLocaleString('zh-CN',{hour12:false}),rfid:code,site:siteN,type:typeN,batch,wt:wt?+wt:null,dim,surf:surf?+surf:null,zone,shelf,ttl,st,deadline};
+  A.recs.unshift(rec);A.scanN++;
+  const resHtml=`<div class="report-summary">
+    <div class="report-item"><div class="ri-label">网点</div><div class="ri-val">${siteN}</div></div>
+    <div class="report-item"><div class="ri-label">类型</div><div class="ri-val">${typeN}</div></div>
+    <div class="report-item"><div class="ri-label">批次</div><div class="ri-val">${batch}</div></div>
+    <div class="report-item"><div class="ri-label">时效</div><div class="ri-val">${ttl}h</div></div>
+    <div class="report-item"><div class="ri-label">库区</div><div class="ri-val">${zone}区</div></div>
+    <div class="report-item"><div class="ri-label">货架</div><div class="ri-val">${shelf}</div></div>
+  </div>`;
+  document.getElementById('rfidRes').innerHTML=resHtml;
+  tsInsert('rfid',code,{site:siteN,type:typeN,zone,shelf});
+  if(st==='预警')addAlert('warn','包裹预警',`${typeN}包裹 ${code} 需特殊处理`);
+  renderRFIDTB();sync();log(`📦 RFID入库：${code} → ${siteN} ${typeN} ${zone}区 ${shelf}`);
+}
+function simScan(){
+  const sites=Object.keys(siteMap),types=Object.keys(typeMap);
+  const s=sites[Math.floor(Math.random()*sites.length)],t=types[Math.floor(Math.random()*types.length)];
+  const b=Array.from({length:6},()=>Math.floor(Math.random()*16).toString(16).toUpperCase()).join('');
+  const c=Array.from({length:4},()=>Math.floor(Math.random()*16).toString(16).toUpperCase()).join('');
+  document.getElementById('rfidIn').value=s+t+b+c;
+  document.getElementById('rfidWt').value=(Math.random()*20+0.5).toFixed(2);
+  const l=Math.floor(Math.random()*80+10),w=Math.floor(Math.random()*50+10),h=Math.floor(Math.random()*40+5);
+  document.getElementById('rfidDim').value=`${l}×${w}×${h}`;
+  document.getElementById('rfidSurf').value=(Math.random()*40+15).toFixed(1);
+  const zone=String.fromCharCode(65+Math.floor(Math.random()*8));
+  document.getElementById('rfidZone').value=zone;
+  document.getElementById('rfidShelf').value=`${zone}-${String(Math.floor(Math.random()*10)+1).padStart(2,'0')}-${String(Math.floor(Math.random()*5)+1).padStart(2,'0')}`;
+  parseRFID();
+}
+function clrRFID(){['rfidIn','rfidWt','rfidDim','rfidSurf','rfidShelf'].forEach(id=>document.getElementById(id).value='');document.getElementById('rfidZone').value='';document.getElementById('rfidRes').innerHTML='<span style="color:var(--fg-muted)">已清空</span>'}
+function readWt(){const v=(Math.random()*20+0.5).toFixed(2);document.getElementById('rfidWt').value=v;log(`⚖️ 称重读取：${v}kg`);A.iot.wtN++;tsInsert('weight',v,{unit:'kg'});sync()}
+function readDim(){const l=Math.floor(Math.random()*80+10),w=Math.floor(Math.random()*50+10),h=Math.floor(Math.random()*40+5);const v=`${l}×${w}×${h}`;document.getElementById('rfidDim').value=v;document.getElementById('iotUD').textContent=`L=${l} W=${w} H=${h} V=${(l*w*h/1000).toFixed(0)}cm³`;A.iot.usN++;tsInsert('dim',v,{volume:(l*w*h/1000).toFixed(0)});sync()}
+function readSurf(){const v=(Math.random()*40+15).toFixed(1);document.getElementById('rfidSurf').value=v;document.getElementById('iotIR').textContent=`表面温度：${v}℃ ${v>60?'⚠️过热':''}`;A.iot.irN++;tsInsert('surf',v,{unit:'℃'});if(v>60)addAlert('danger','表面过热',`红外测温 ${v}℃ 超过60℃阈值`);sync()}
+
+function readLoc(){
+  const zone=String.fromCharCode(65+Math.floor(Math.random()*8));
+  const shelf=`${zone}-${String(Math.floor(Math.random()*10)+1).padStart(2,'0')}-${String(Math.floor(Math.random()*5)+1).padStart(2,'0')}`;
+  document.getElementById('rfidZone').value=zone;
+  document.getElementById('rfidShelf').value=shelf;
+  A.iot.locN++;document.getElementById('iotLoc').textContent=A.iot.locN;
+  document.getElementById('iotLocD').textContent=`库区：${zone}区 | 货架：${shelf} | 精度：±10cm | TDOA定位`;
+  tsInsert('loc',shelf,{zone,method:'UWB-TDOA'});
+  log(`📍 定位完成：${zone}区 ${shelf}`);sync();
+}
+
+function renderRFIDTB(){
+  const tb=document.getElementById('rfidTB');
+  if(!A.recs.length){tb.innerHTML='<tr><td colspan="13" style="text-align:center;color:var(--fg-muted)">暂无</td></tr>';return}
+  tb.innerHTML=A.recs.slice(0,50).map((r,i)=>`<tr><td>${r.time}</td><td><code>${r.rfid}</code></td><td>${r.site}</td><td>${r.type}</td><td>${r.batch}</td><td>${r.wt?r.wt+'kg':'-'}</td><td>${r.dim||'-'}</td><td>${r.surf!==null?r.surf+'℃':'-'}</td><td>${r.zone}区</td><td>${r.shelf}</td><td>${r.ttl}h</td><td><span class="badge ${r.st==='正常'?'bS':r.st==='预警'?'bW':'bD'}">${r.st}</span></td><td><button class="btn bd bs" onclick="delRec(${i})">删除</button></td></tr>`).join('');
+}
+function filterTbl(){
+  const q=document.getElementById('searchIn').value.toLowerCase();
+  const tb=document.getElementById('rfidTB');
+  const f=A.recs.filter(r=>!q||r.rfid.toLowerCase().includes(q)||r.site.includes(q)||r.type.includes(q));
+  if(!f.length){tb.innerHTML='<tr><td colspan="13" style="text-align:center;color:var(--fg-muted)">无匹配</td></tr>';return}
+  tb.innerHTML=f.slice(0,50).map((r,i)=>`<tr><td>${r.time}</td><td><code>${r.rfid}</code></td><td>${r.site}</td><td>${r.type}</td><td>${r.batch}</td><td>${r.wt?r.wt+'kg':'-'}</td><td>${r.dim||'-'}</td><td>${r.surf!==null?r.surf+'℃':'-'}</td><td>${r.zone}区</td><td>${r.shelf}</td><td>${r.ttl}h</td><td><span class="badge ${r.st==='正常'?'bS':r.st==='预警'?'bW':'bD'}">${r.st}</span></td><td><button class="btn bd bs" onclick="delRec(${A.recs.indexOf(r)})">删除</button></td></tr>`).join('');
+}
+function delRec(i){showCfm('确认删除该入库记录？',()=>{A.recs.splice(i,1);renderRFIDTB();sync();log('🗑️ 已删除一条记录')})}
+function exportCSV(){
+  if(!A.recs.length){alert('暂无数据');return}
+  const h='时间,RFID,网点,类型,批次,重量,尺寸,表面温度,库区,货架,时效,状态\n';
+  const d=A.recs.map(r=>`${r.time},${r.rfid},${r.site},${r.type},${r.batch},${r.wt||''},${r.dim||''},${r.surf||''},${r.zone},${r.shelf},${r.ttl},${r.st}`).join('\n');
+  const blob=new Blob(['\uFEFF'+h+d],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='仓储记录_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  log('📥 CSV已导出');
+}
+
+/* ===== 模拟数据录入 ===== */
+function simGenerateOne(template){
+  const sites=Object.keys(siteMap);
+  const types=Object.keys(typeMap);
+  let type;
+  if(template==='standard'){type=Math.random()<0.7?'01':types[Math.floor(Math.random()*types.length)]}
+  else if(template==='cold'){type=Math.random()<0.7?'03':types[Math.floor(Math.random()*types.length)]}
+  else if(template==='fragile'){type=Math.random()<0.7?'04':types[Math.floor(Math.random()*types.length)]}
+  else if(template==='urgent'){type=Math.random()<0.7?'05':types[Math.floor(Math.random()*types.length)]}
+  else if(template==='big'){type=Math.random()<0.7?'02':types[Math.floor(Math.random()*types.length)]}
+  else{type=types[Math.floor(Math.random()*types.length)]}
+  const site=sites[Math.floor(Math.random()*sites.length)];
+  const batch=Array.from({length:6},()=>Math.floor(Math.random()*16).toString(16).toUpperCase()).join('');
+  const crc=Array.from({length:4},()=>Math.floor(Math.random()*16).toString(16).toUpperCase()).join('');
+  const code=site+type+batch+crc;
+  const wt=+(Math.random()*25+0.3).toFixed(2);
+  const l=Math.floor(Math.random()*80+10),w=Math.floor(Math.random()*50+10),h=Math.floor(Math.random()*40+5);
+  const dim=`${l}×${w}×${h}`;
+  const surf=+(Math.random()*45+10).toFixed(1);
+  const zone=String.fromCharCode(65+Math.floor(Math.random()*8));
+  const shelf=`${zone}-${String(Math.floor(Math.random()*10)+1).padStart(2,'0')}-${String(Math.floor(Math.random()*5)+1).padStart(2,'0')}`;
+  const siteN=siteMap[site]||'未知网点';
+  const typeN=typeMap[type]||'未知类型';
+  const ttl=ttlMap[type]||48;
+  const now=new Date();
+  const deadline=new Date(now.getTime()+ttl*3600000);
+  const st=type==='03'?'预警':'正常';
+  const rec={time:now.toLocaleString('zh-CN',{hour12:false}),rfid:code,site:siteN,type:typeN,batch,wt,dim,surf,zone,shelf,ttl,st,deadline};
+  A.recs.unshift(rec);A.scanN++;
+  tsInsert('rfid',code,{site:siteN,type:typeN,zone,shelf});
+  if(st==='预警')addAlert('warn','包裹预警',`${typeN}包裹 ${code} 需特殊处理`);
+}
+function simSingleEntry(){
+  const template=document.getElementById('simTemplate').value;
+  simGenerateOne(template);
+  renderRFIDTB();sync();simUpdateCount();
+  log('📥 模拟录入1条包裹数据');
+}
+function simBatchEntry(){
+  const n=Math.min(200,Math.max(1,+document.getElementById('simBatchN').value||10));
+  const template=document.getElementById('simTemplate').value;
+  const progEl=document.getElementById('simProgress');
+  const barEl=document.getElementById('simProgressBar');
+  const textEl=document.getElementById('simProgressText');
+  progEl.style.display='block';barEl.style.width='0%';
+  let i=0;
+  function step(){
+    if(i>=n){
+      renderRFIDTB();sync();simUpdateCount();
+      textEl.textContent=`✅ 已录入 ${n} 条记录`;
+      barEl.style.width='100%';
+      setTimeout(()=>{progEl.style.display='none'},2000);
+      return;
+    }
+    simGenerateOne(template);i++;
+    barEl.style.width=((i/n)*100)+'%';
+    textEl.textContent=`录入中... ${i}/${n}`;
+    if(i%5===0){renderRFIDTB();sync();simUpdateCount()}
+    setTimeout(step,30);
+  }
+  step();
+  log(`📦 批量模拟录入：${n}条（${template}模板）`);
+}
+function simToggleAuto(){
+  A.simAuto=!A.simAuto;
+  document.getElementById('simAutoLabel').textContent=A.simAuto?'关闭自动录入':'开启自动录入';
+  const led=document.getElementById('simLed');
+  const stEl=document.getElementById('simStatus');
+  if(A.simAuto){
+    const interval=Math.max(1,+document.getElementById('simInterval').value||3);
+    A.simTimer=setInterval(()=>{
+      const template=document.getElementById('simTemplate').value;
+      simGenerateOne(template);
+      renderRFIDTB();sync();simUpdateCount();
+    },interval*1000);
+    led.className='io-led on';stEl.textContent=`每${interval}s自动录入`;stEl.style.color='var(--success)';
+    log(`⏱ 自动模拟录入已开启（每${interval}秒）`);
+  }else{
+    clearInterval(A.simTimer);A.simTimer=null;
+    led.className='io-led';stEl.textContent='待机';stEl.style.color='var(--fg-muted)';
+    log('⏱ 自动模拟录入已关闭');
+  }
+}
+function simClearAll(){
+  showCfm('确认清空全部入库记录？此操作不可逆！',()=>{
+    A.recs=[];A.scanN=0;renderRFIDTB();sync();simUpdateCount();
+    log('🗑️ 已清空全部入库记录');
+  });
+}
+function simUpdateCount(){
+  const total=A.recs.length;
+  const normal=A.recs.filter(r=>r.st==='正常').length;
+  const warn=A.recs.filter(r=>r.st==='预警').length;
+  const over=A.recs.filter(r=>r.st==='超时').length;
+  const el=(id)=>document.getElementById(id);
+  if(el('simTotalCount'))el('simTotalCount').textContent=total;
+  if(el('simTodayCount'))el('simTodayCount').textContent=total;
+  if(el('simNormalCount'))el('simNormalCount').textContent=normal;
+  if(el('simWarnCount'))el('simWarnCount').textContent=warn;
+  if(el('simOverCount'))el('simOverCount').textContent=over;
+}
+
+/* ===== 环境 ===== */
+function submitEnv(){
+  const t=+document.getElementById('mT').value,h=+document.getElementById('mH').value;
+  if(isNaN(t)||isNaN(h)){alert('请输入有效温度和湿度');return}
+  processEnv(t,h);
+}
+function fetchSens(){
+  const t=+(18+Math.random()*12-3).toFixed(1),h=+(45+Math.random()*20-5).toFixed(1);
+  processEnv(t,h);document.getElementById('mT').value=t;document.getElementById('mH').value=h;
+}
+function processEnv(t,h){
+  A.rawTemps.push(t);A.rawHums.push(h);if(A.rawTemps.length>30)A.rawTemps.shift();if(A.rawHums.length>30)A.rawHums.shift();
+  document.getElementById('rawT').textContent=t;document.getElementById('rawH').textContent=h;
+  const ft=A.filtOn?+(A.rawTemps.slice(-A.filtWin).reduce((a,b)=>a+b,0)/Math.min(A.rawTemps.length,A.filtWin)).toFixed(1):t;
+  const fh=A.filtOn?+(A.rawHums.slice(-A.filtWin).reduce((a,b)=>a+b,0)/Math.min(A.rawHums.length,A.filtWin)).toFixed(1):h;
+  const tOk=t>=10&&t<=25,hOk=h>=40&&h<=60;const ok=tOk&&hOk;
+  const st=ok?'正常':(!tOk&&!hOk?'异常':'注意');
+  document.getElementById('eT').innerHTML=`${ft}<span class="eu">℃</span>`;
+  document.getElementById('eH').innerHTML=`${fh}<span class="eu">%</span>`;
+  document.getElementById('tD').textContent=`偏差：${ft>25?'+'+(ft-25).toFixed(1):ft<10?'-'+(10-ft).toFixed(1):'0'}℃`;
+  document.getElementById('hD').textContent=`偏差：${fh>60?'+'+(fh-60).toFixed(1):fh<40?'-'+(40-fh).toFixed(1):'0'}%`;
+  document.getElementById('tG').style.width=Math.min(100,Math.max(0,(ft/40)*100))+'%';
+  document.getElementById('tG').className='gf '+(tOk?'g':ft>30||ft<5?'r':'y');
+  document.getElementById('hG').style.width=Math.min(100,Math.max(0,(fh/80)*100))+'%';
+  document.getElementById('hG').className='gf '+(hOk?'g':fh>70||fh<30?'r':'y');
+  const bar=document.getElementById('envBar');
+  bar.className='eb '+(ok?'eOk':st==='异常'?'eD':'eW');
+  bar.textContent=ok?'✅ 仓储环境正常':st==='异常'?'🚨 仓储环境异常':'⚠️ 仓储环境需关注';
+  A.envRecs.unshift({time:new Date().toLocaleString('zh-CN',{hour12:false}),temp:ft,hum:fh,st,filt:A.filtOn?`窗口${A.filtWin}`:'原始'});
+  if(A.envRecs.length>100)A.envRecs.pop();
+  tsInsert('temp',ft,{unit:'℃',status:st});tsInsert('humid',fh,{unit:'%',status:st});
+  if(!ok)addAlert(st==='异常'?'danger':'warn','环境'+st,`温度${ft}℃ 湿度${fh}%`);
+  renderEnvTB();A.iot.sensN++;document.getElementById('iotSD').textContent=`温度：${ft}℃ | 湿度：${fh}% | 状态：${st}`;
+  log(`🌡️ 环境采集：${ft}℃/${fh}% ${st}`);sync();
+}
+function renderEnvTB(){
+  const tb=document.getElementById('envTB');
+  tb.innerHTML=A.envRecs.slice(0,20).map(r=>`<tr><td>${r.time}</td><td>${r.temp}℃</td><td>${r.hum}%</td><td>${(r.temp-17.5).toFixed(1)}</td><td>${(r.hum-50).toFixed(1)}</td><td>${r.filt}</td><td><span class="badge ${r.st==='正常'?'bS':r.st==='异常'?'bD':'bW'}">${r.st}</span></td></tr>`).join('');
+}
+function toggleFilt(){A.filtOn=!A.filtOn;A.filtWin=+document.getElementById('fWin').value;document.getElementById('filterMode').textContent=A.filtOn?`窗口${A.filtWin}`:'原始值';document.getElementById('filterWin').textContent=A.filtWin;log(`🔄 滤波模式：${A.filtOn?'开启':'关闭'}`)}
+function toggleAutoEnv(){A.sensAuto=!A.sensAuto;document.getElementById('sensML').textContent=A.sensAuto?'自动':'手动';log(`⏱ 温湿度自动监测：${A.sensAuto?'开启':'关闭'}`);if(A.sensAuto)autoSensLoop()}
+function autoSensLoop(){if(!A.sensAuto)return;fetchSens();setTimeout(autoSensLoop,(A.devParams.sens.interval||60)*1000)}
+
+/* ===== IoT ===== */
+function iotRFScan(){A.iot.rfidN++;document.getElementById('iotRC').textContent=A.iot.rfidN;document.getElementById('iotRD').textContent=`扫描成功 | 编码：${document.getElementById('rfidIn').value||'SIM'+Date.now().toString(16).toUpperCase().slice(-8)} | 功率：${A.devParams.rfid.power}dBm`;simScan();sync()}
+function iotRFToggle(){A.rfidAuto=!A.rfidAuto;document.getElementById('rfidML').textContent=A.rfidAuto?'自动':'手动';log(`📡 RFID模式：${A.rfidAuto?'自动':'手动'}`);if(A.rfidAuto)autoRFLoop()}
+function autoRFLoop(){if(!A.rfidAuto)return;simScan();setTimeout(autoRFLoop,(A.devParams.rfid.interval||30)*1000)}
+function iotSensR(){fetchSens()}
+function iotSensT(){toggleAutoEnv()}
+function iotWtR(){readWt()}
+function iotWtT(){A.wtAuto=!A.wtAuto;document.getElementById('wtML').textContent=A.wtAuto?'自动':'手动';log(`⚖️ 称重模式：${A.wtAuto?'自动':'手动'}`);if(A.wtAuto)autoWtLoop()}
+function autoWtLoop(){if(!A.wtAuto)return;readWt();setTimeout(autoWtLoop,(A.devParams.wt.interval||30)*1000)}
+function iotUsR(){readDim()}
+function iotUsT(){A.usAuto=!A.usAuto;document.getElementById('usML').textContent=A.usAuto?'自动':'手动';log(`📏 超声波模式：${A.usAuto?'自动':'手动'}`);if(A.usAuto)autoUsLoop()}
+function autoUsLoop(){if(!A.usAuto)return;readDim();setTimeout(autoUsLoop,(A.devParams.us.interval||30)*1000)}
+function iotIrR(){readSurf()}
+function iotIrT(){A.irAuto=!A.irAuto;document.getElementById('irML').textContent=A.irAuto?'自动':'手动';log(`🔥 红外模式：${A.irAuto?'自动':'手动'}`);if(A.irAuto)autoIrLoop()}
+function autoIrLoop(){if(!A.irAuto)return;readSurf();setTimeout(autoIrLoop,(A.devParams.ir.interval||30)*1000)}
+function iotTiltR(){
+  const pitch=(Math.random()*30-15).toFixed(1),roll=(Math.random()*30-15).toFixed(1);
+  const maxA=Math.max(Math.abs(pitch),Math.abs(roll));const ok=maxA<=15;
+  A.iot.tiltN++;document.getElementById('iotTT').textContent=`俯仰：${pitch}° | 横滚：${roll}° | ${ok?'✅正常':'⚠️超限'}`;
+  tsInsert('tilt',maxA.toFixed(1),{pitch,roll,unit:'°',status:ok?'正常':'预警'});
+  if(!ok)addAlert('warn','包裹倾斜',`倾角${maxA.toFixed(1)}° 超过15°阈值`);
+  log(`📐 倾角读取：${pitch}°/${roll}°`);sync();
+}
+function iotTiltT(){A.tiltAuto=!A.tiltAuto;document.getElementById('tiltML').textContent=A.tiltAuto?'自动':'手动';log(`📐 倾角模式：${A.tiltAuto?'自动':'手动'}`);if(A.tiltAuto)autoTiltLoop()}
+function autoTiltLoop(){if(!A.tiltAuto)return;iotTiltR();setTimeout(autoTiltLoop,(A.devParams.tilt.interval||30)*1000)}
+function iotVibR(){
+  const g=(Math.random()*5).toFixed(2);const ok=g<=3;
+  A.iot.vibN++;document.getElementById('iotVB').textContent=`加速度：${g}g | ${ok?'✅正常':'⚠️冲击预警'}`;
+  tsInsert('vib',g,{unit:'g',status:ok?'正常':'预警'});
+  if(!ok)addAlert('danger','包裹冲击',`振动${g}g 超过3g阈值`);
+  log(`📳 振动读取：${g}g`);sync();
+}
+function iotVibT(){A.vibAuto=!A.vibAuto;document.getElementById('vibML').textContent=A.vibAuto?'自动':'手动';log(`📳 振动模式：${A.vibAuto?'自动':'手动'}`);if(A.vibAuto)autoVibLoop()}
+function autoVibLoop(){if(!A.vibAuto)return;iotVibR();setTimeout(autoVibLoop,(A.devParams.vib.interval||30)*1000)}
+
+/* ===== 安防 ===== */
+function readDoor(){
+  const open=Math.random()<0.1;A.sec.doorOpen=open;A.iot.doorN++;
+  document.getElementById('iotDoor').textContent=open?'⚠️已打开':'已关闭';
+  document.getElementById('iotDoorD').textContent=`状态：${open?'打开':'关闭'} | 灵敏度：${A.devParams.door.sensitivity}`;
+  tsInsert('door',open?1:0,{status:open?'打开':'关闭'});
+  if(open)addAlert('danger','区域入侵','门磁传感器触发：门已打开');sync();
+}
+function readLaser(){
+  const triggered=Math.random()<0.08;A.sec.laserTriggered=triggered;A.iot.laserN++;
+  document.getElementById('iotLaser').textContent=triggered?'⚠️光束中断':'正常';
+  document.getElementById('iotLaserD').textContent=`状态：${triggered?'中断':'正常'} | 距离：${A.devParams.laser.distance}m`;
+  tsInsert('laser',triggered?1:0,{status:triggered?'中断':'正常'});
+  if(triggered)addAlert('danger','区域入侵','激光对射触发：光束中断');sync();
+}
+function triggerAlarm(){A.sec.alarmOn=true;A.iot.alarmN++;document.getElementById('iotAlarm').textContent='🚨报警中';document.getElementById('iotAlarmD').textContent=`音量：${A.devParams.alarm.volume}dB | 模式：${A.devParams.alarm.mode} | 状态：报警中`;log('🚨 声光报警触发');sendCmd('🚨 声光报警器','触发报警',`音量${A.devParams.alarm.volume}dB`,true);sync()}
+function stopAlarm(){A.sec.alarmOn=false;document.getElementById('iotAlarm').textContent='待机';document.getElementById('iotAlarmD').textContent='已停止 | 待机中';log('✅ 声光报警停止');sendCmd('🚨 声光报警器','停止报警','手动停止',true);sync()}
+function relayOn(){A.sec.relayOn=true;A.iot.relayN++;document.getElementById('iotRelayD').textContent=`状态：闭合 | 通道：${A.devParams.relay.channels}路 | 负载：${A.devParams.relay.load}`;log('⚡ 继电器闭合');sendCmd('🔌 继电器','闭合',`${A.devParams.relay.channels}路`,true);sync()}
+function relayOff(){A.sec.relayOn=false;document.getElementById('iotRelayD').textContent='状态：断开 | 待命中';log('🔓 继电器断开');sendCmd('🔌 继电器','断开','',true);sync()}
+function iotDoorT(){A.doorAuto=!A.doorAuto;document.getElementById('doorML').textContent=A.doorAuto?'自动':'手动';log(`🚪 门磁模式：${A.doorAuto?'自动':'手动'}`)}
+function iotLaserT(){A.laserAuto=!A.laserAuto;document.getElementById('laserML').textContent=A.laserAuto?'自动':'手动';log(`🔴 激光模式：${A.laserAuto?'自动':'手动'}`)}
+function iotAlarmT(){A.alarmAuto=!A.alarmAuto;document.getElementById('alarmML').textContent=A.alarmAuto?'自动':'手动';log(`🚨 报警模式：${A.alarmAuto?'自动':'手动'}`)}
+function iotRelayT(){A.relayAuto=!A.relayAuto;document.getElementById('relayML').textContent=A.relayAuto?'自动':'手动';log(`🔌 继电器模式：${A.relayAuto?'自动':'手动'}`)}
+function iotLocT(){A.locAuto=!A.locAuto;document.getElementById('locML').textContent=A.locAuto?'自动':'手动';log(`📍 定位模式：${A.locAuto?'自动':'手动'}`);if(A.locAuto)autoLocLoop()}
+function autoLocLoop(){if(!A.locAuto)return;readLoc();setTimeout(autoLocLoop,(A.devParams.loc.interval||15)*1000)}
+
+function saveCfg(){
+  ['cfgR','cfgS','cfgW','cfgU','cfgI','cfgT','cfgV','cfgSec'].forEach(id=>{
+    const v=+document.getElementById(id).value;if(v<5){document.getElementById(id).value=5}
+  });
+  A.devParams.rfid.interval=+document.getElementById('cfgR').value;
+  A.devParams.sens.interval=+document.getElementById('cfgS').value;
+  A.devParams.wt.interval=+document.getElementById('cfgW').value;
+  A.devParams.us.interval=+document.getElementById('cfgU').value;
+  A.devParams.ir.interval=+document.getElementById('cfgI').value;
+  A.devParams.tilt.interval=+document.getElementById('cfgT').value;
+  A.devParams.vib.interval=+document.getElementById('cfgV').value;
+  log('💾 采集配置已保存');
+}
+function stopAll(){
+  A.rfidAuto=A.sensAuto=A.wtAuto=A.usAuto=A.irAuto=A.tiltAuto=A.vibAuto=A.doorAuto=A.laserAuto=A.alarmAuto=A.relayAuto=A.locAuto=false;
+  if(A.simAuto){A.simAuto=false;clearInterval(A.simTimer);A.simTimer=null;document.getElementById('simAutoLabel').textContent='开启自动录入';document.getElementById('simLed').className='io-led';document.getElementById('simStatus').textContent='待机';document.getElementById('simStatus').style.color='var(--fg-muted)'}
+  ['rfidML','sensML','wtML','usML','irML','tiltML','vibML','doorML','laserML','alarmML','relayML','locML'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='手动'});
+  log('⏹ 已停止全部自动采集');sync();
+}
+function testLinkage(){A.ctrl.linkCount++;triggerAlarm();relayOn();log('🧪 联动测试：报警+继电器触发');sync()}
+function toggleAutoLinkage(){A.sec.autoLinkage=!A.sec.autoLinkage;document.getElementById('autoLinkLabel').textContent=A.sec.autoLinkage?'关闭自动联动':'开启自动联动';log(`🔄 自动联动：${A.sec.autoLinkage?'开启':'关闭'}`)}
+
+/* ===== 超时检查 ===== */
+function chkOverdue(){
+  const now=Date.now();let changed=false;
+  A.recs.forEach(r=>{if(r.st==='正常'&&r.deadline&&new Date(r.deadline).getTime()<now){r.st='超时';changed=true}});
+  if(changed){renderRFIDTB();addAlert('warn','包裹超时','有包裹已超过时效期限');sync()}
+}
+
+/* ===== 通信仿真 ===== */
+function crc16(buf){let crc=0xFFFF;for(let i=0;i<buf.length;i++){crc^=buf[i];for(let j=0;j<8;j++){crc=crc&1?(crc>>1)^0xA001:crc>>1}}return crc}
+function genPayload(proto){
+  if(proto==='mqtt'){
+    const topic='warehouse/sensor/data';const payload=`temp:${(18+Math.random()*10).toFixed(1)},hum:${(45+Math.random()*15).toFixed(1)}`;
+    const tB=Array.from(topic).map(c=>c.charCodeAt(0));const pB=Array.from(payload).map(c=>c.charCodeAt(0));
+    const remainLen=2+tB.length+2+pB.length;const frame=[0x30,remainLen,0x00,tB.length,...tB,0x00,pB.length,...pB];
+    const crc=crc16(frame);return{frame:[...frame,(crc>>8)&0xFF,crc&0xFF],topic,payload,len:frame.length+2,type:'PUBLISH',crcVal:crc};
+  }else if(proto==='modbus'){
+    const slave=0x01,func=0x03,startH=0x00,startL=0x00,quantH=0x00,quantL=0x0A;
+    const body=[slave,func,startH,startL,quantH,quantL];const crc=crc16(body);
+    return{frame:[...body,(crc&0xFF),(crc>>8)&0xFF],funcCode:'03 Read Holding Registers',startReg:0,quantity:10,len:body.length+2,type:'Request',crcVal:crc};
+  }else{
+    const cmd=0xC2;const epcB=Array.from(document.getElementById('rfidIn').value.trim()||'SH01010215A3F2').map(c=>c.charCodeAt(0)).slice(0,16);
+    const body=[cmd,epcB.length,...epcB];const crc=crc16(body);
+    return{frame:[...body,(crc>>8)&0xFF,crc&0xFF],cmd:'0xC2 Read',epc:String.fromCharCode(...epcB),len:body.length+2,type:'EPC Read',crcVal:crc};
+  }
+}
+function simTransmit(){
+  const proto=document.getElementById('protoSel').value;const bw=parseInt(document.getElementById('bw').value)||256;const lossR=parseFloat(document.getElementById('lossR').value)||2;
+  const data=genPayload(proto);const txDelay=(data.len*8/bw)*1000;const propDelay=Math.random()*15+1;const totalDelay=+(txDelay+propDelay).toFixed(2);
+  const lost=Math.random()*100<lossR;const crcOk=!lost;
+  A.comm.totalFrames++;if(lost){A.comm.lossCount++;A.comm.err}else{A.comm.ok++}
+  A.comm.totalBytes+=data.len;A.comm.delays.push(totalDelay);if(A.comm.delays.length>100)A.comm.delays.shift();
+  const avgDelay=A.comm.delays.length?+(A.comm.delays.reduce((a,b)=>a+b,0)/A.comm.delays.length).toFixed(2):0;
+  const ts=new Date().toLocaleTimeString('zh-CN',{hour12:false});
+  const record={time:ts,proto,seq:A.comm.totalFrames,len:data.len,delay:totalDelay,crcOk,lost};
+  A.comm.history.unshift(record);if(A.comm.history.length>100)A.comm.history.pop();
+  renderFrame(proto,data,crcOk,lost,totalDelay);renderCommTable();printFrame(proto,data,crcOk,lost,totalDelay);
+  document.getElementById('cDelay').textContent=avgDelay;document.getElementById('cLoss').textContent=A.comm.totalFrames?((A.comm.lossCount/A.comm.totalFrames)*100).toFixed(1)+'%':'0%';
+  document.getElementById('cOk').textContent=A.comm.ok;document.getElementById('cErr').textContent=A.comm.err;document.getElementById('cThr').textContent=A.comm.totalBytes;
+  updateCommChart();log(`通信仿真：${proto.toUpperCase()} 帧#${A.comm.totalFrames} ${lost?'❌丢失':'✅成功'} ${totalDelay}ms`);sync();
+}
+function simBurst(){for(let i=0;i<10;i++)setTimeout(()=>simTransmit(),i*200)}
+function renderFrame(proto,data,crcOk,lost,delay){
+  const el=document.getElementById('frameDisplay');const bytes=data.frame.map(b=>b.toString(16).toUpperCase().padStart(2,'0'));
+  let html=`<div class="frame-box">`;
+  if(proto==='mqtt'){html+=`<div style="margin-bottom:6px;color:#94a3b8">// MQTT PUBLISH 帧</div><span class="hdr">30 ${bytes[1]}</span> <span class="hdr">00 ${bytes[3]}</span> <span class="pay">${bytes.slice(4,4+data.topic.length).join(' ')}</span> <span class="hdr">00 ${bytes[4+data.topic.length+1]}</span> <span class="pay">${bytes.slice(4+data.topic.length+2,bytes.length-2).join(' ')}</span> <span class="${crcOk?'crc':'err'}">${bytes.slice(-2).join(' ')}</span><div style="margin-top:8px;color:#94a3b8">// Topic: ${data.topic}</div><div style="color:#94a3b8">// Payload: ${data.payload}</div>`;
+  }else if(proto==='modbus'){html+=`<div style="margin-bottom:6px;color:#94a3b8">// Modbus RTU ${data.funcCode}</div><span class="hdr">${bytes[0]} ${bytes[1]}</span> <span class="hdr">${bytes[2]} ${bytes[3]}</span> <span class="hdr">${bytes[4]} ${bytes[5]}</span> <span class="${crcOk?'crc':'err'}">${bytes.slice(-2).join(' ')}</span><div style="margin-top:8px;color:#94a3b8">// 从站:0x01 起始寄存器:${data.startReg} 数量:${data.quantity}</div>`;
+  }else{html+=`<div style="margin-bottom:6px;color:#94a3b8">// RFID EPC Gen2 ${data.type}</div><span class="hdr">${bytes[0]}</span> <span class="hdr">${bytes[1]}</span> <span class="pay">${bytes.slice(2,2+data.epc.length).join(' ')}</span> <span class="${crcOk?'crc':'err'}">${bytes.slice(-2).join(' ')}</span><div style="margin-top:8px;color:#94a3b8">// EPC: ${data.epc}</div>`}
+  html+=`<div style="margin-top:8px;color:#64748b">帧长: ${data.len} bytes | CRC-16: 0x${data.crcVal.toString(16).toUpperCase().padStart(4,'0')} | 校验: ${crcOk?'<span style="color:#34d399">✅ PASS</span>':'<span style="color:#ef4444">❌ FAIL</span>'} | 时延: ${delay}ms${lost?' | <span style="color:#ef4444">帧丢失</span>':''}</div></div>`;
+  el.innerHTML=html;
+}
+function printFrame(proto,data,crcOk,lost,delay){
+  const el=document.getElementById('printArea');const ts=new Date().toLocaleTimeString('zh-CN',{hour12:false});
+  const hex=data.frame.map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
+  el.textContent+=`\n[${ts}] ${proto.toUpperCase()} FRAME #${A.comm.totalFrames}\n  HEX: ${hex}\n  LEN: ${data.len}B | DELAY: ${delay}ms | CRC: ${crcOk?'PASS':'FAIL'} | ${lost?'LOST':'OK'}\n`;
+  el.scrollTop=el.scrollHeight;
+}
+function clearPrint(){document.getElementById('printArea').textContent='// 报文输出终端\n// 所有通信帧报文将在此打印\n'}
+function renderCommTable(){
+  const tb=document.getElementById('commTB');if(!A.comm.history.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--fg-muted)">暂无</td></tr>';return}
+  tb.innerHTML=A.comm.history.slice(0,30).map(r=>`<tr><td>${r.time}</td><td><span class="badge bP">${r.proto.toUpperCase()}</span></td><td>#${r.seq}</td><td>${r.len}</td><td>${r.delay}ms</td><td><span class="badge ${r.crcOk?'bS':'bD'}">${r.crcOk?'OK':'FAIL'}</span></td><td><span class="badge ${r.lost?'bD':'bS'}">${r.lost?'丢失':'成功'}</span></td></tr>`).join('');
+}
+function updateCommChart(){
+  const last20=A.comm.history.slice(0,20).reverse();if(!last20.length){document.getElementById('commChart').innerHTML='';document.getElementById('commLabels').innerHTML='';return}
+  const maxD=Math.max(1,...last20.map(r=>r.delay));
+  document.getElementById('commChart').innerHTML=last20.map(r=>`<div class="cc" style="height:${(r.delay/maxD)*100}%;background:${r.lost?'linear-gradient(180deg,#ef4444,#f87171)':''}"><span class="cv">${r.delay}</span></div>`).join('');
+  document.getElementById('commLabels').innerHTML=last20.map(r=>`<span>#${r.seq}</span>`).join('');
+}
+function clearComm(){A.comm={ok:0,err:0,totalBytes:0,delays:[],lossCount:0,totalFrames:0,history:[]};
+  document.getElementById('cDelay').textContent='--';document.getElementById('cLoss').textContent='0%';document.getElementById('cOk').textContent='0';document.getElementById('cErr').textContent='0';document.getElementById('cThr').textContent='0';
+  document.getElementById('commTB').innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--fg-muted)">暂无</td></tr>';
+  document.getElementById('commChart').innerHTML='';document.getElementById('commLabels').innerHTML='';log('通信统计已清除')}
+
+
+/* ===== 时序数据库 ===== */
+function tsInsert(sensor,value,meta){
+  A.tsdb.unshift({time:new Date().toLocaleString('zh-CN',{hour12:false}),ts:Date.now(),sensor,value,...meta});
+  if(A.tsdb.length>500)A.tsdb.pop();
+}
+function renderTS(){
+  const sel=document.getElementById('tsSel').value;const d=sel==='all'?A.tsdb:A.tsdb.filter(r=>r.sensor===sel);
+  const el=document.getElementById('tsList');
+  if(!d.length){el.innerHTML='<div style="color:var(--fg-muted);text-align:center;padding:10px;font-size:.82rem">无数据</div>';return}
+  el.innerHTML=d.slice(0,50).map(r=>{
+    const extra=Object.entries(r).filter(([k])=>!['time','ts','sensor','value'].includes(k)).map(([k,v])=>`${k}=${v}`).join(' ');
+    return`<div class="ts-row"><span class="ts-time">${r.time}</span><span class="ts-key"><span class="badge ${sensorBadge(r.sensor)}">${sensorLabel(r.sensor)}</span></span><span class="ts-val">${r.value}</span><span style="color:var(--fg-muted);font-size:.72rem;margin-left:auto">${extra}</span></div>`
+  }).join('');
+}
+function sensorBadge(s){return{temp:'bD',humid:'bI',weight:'bB',dim:'bT',surf:'bW',tilt:'bP',vib:'bS',rfid:'bB',door:'bO',laser:'bD',loc:'bP'}[s]||'bB'}
+function sensorLabel(s){return{temp:'温度',humid:'湿度',weight:'称重',dim:'超声波',surf:'红外测温',tilt:'倾角',vib:'振动',rfid:'RFID',door:'门磁',laser:'激光',loc:'定位'}[s]||s}
+
+/* ===== 远程控制 ===== */
+function sendCmd(device,cmd,params,ok){
+  A.ctrl.cmdCount++;const ts=new Date().toLocaleString('zh-CN',{hour12:false});
+  A.ctrl.history.unshift({time:ts,device,cmd,params,ok});if(A.ctrl.history.length>100)A.ctrl.history.pop();
+  renderCtrlTB();sync();
+}
+function renderCtrlTB(){
+  const tb=document.getElementById('ctrlTB');
+  if(!A.ctrl.history.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--fg-muted)">暂无指令</td></tr>';return}
+  tb.innerHTML=A.ctrl.history.slice(0,30).map(r=>`<tr><td>${r.time}</td><td>${r.device}</td><td>${r.cmd}</td><td style="font-family:monospace;font-size:.78rem">${r.params}</td><td><span class="badge ${r.ok?'bS':'bD'}">${r.ok?'成功':'失败'}</span></td></tr>`).join('');
+}
+function clearCtrlLog(){A.ctrl.history=[];renderCtrlTB()}
+
+const CTRL_DEVICES=[
+  {id:'rfid',name:'📡 RFID读写器',params:['power','freq','interval'],actions:[{label:'🔍 扫描',fn:'iotRFScan()'},{label:'⏹ 停止',fn:'iotRFToggle()'},{label:'⚙️ 改功率',fn:'setParam("rfid","power")'}]},
+  {id:'sens',name:'🌡️ 温湿度传感器',params:['precision','interval'],actions:[{label:'📊 读取',fn:'iotSensR()'},{label:'⏹ 停止',fn:'iotSensT()'},{label:'⚙️ 改间隔',fn:'setParam("sens","interval")'}]},
+  {id:'wt',name:'⚖️ 称重传感器',params:['range','interval'],actions:[{label:'⚖️ 读取',fn:'iotWtR()'},{label:'⏹ 停止',fn:'iotWtT()'}]},
+  {id:'us',name:'📏 超声波传感器',params:['range','interval'],actions:[{label:'📏 读取',fn:'iotUsR()'},{label:'⏹ 停止',fn:'iotUsT()'}]},
+  {id:'ir',name:'🔥 红外测温',params:['range','interval'],actions:[{label:'🔥 读取',fn:'iotIrR()'},{label:'⏹ 停止',fn:'iotIrT()'}]},
+  {id:'tilt',name:'📐 倾角传感器',params:['threshold','interval'],actions:[{label:'📐 读取',fn:'iotTiltR()'},{label:'⚙️ 改阈值',fn:'setParam("tilt","threshold")'}]},
+  {id:'vib',name:'📳 振动传感器',params:['threshold','interval'],actions:[{label:'📳 读取',fn:'iotVibR()'},{label:'⚙️ 改阈值',fn:'setParam("vib","threshold")'}]},
+  {id:'door',name:'🚪 门磁传感器',params:['sensitivity','interval'],actions:[{label:'🚪 读取',fn:'readDoor()'},{label:'⏹ 停止',fn:'iotDoorT()'}]},
+  {id:'laser',name:'🔴 激光对射',params:['distance','interval'],actions:[{label:'🔴 读取',fn:'readLaser()'},{label:'⏹ 停止',fn:'iotLaserT()'}]},
+  {id:'alarm',name:'🚨 声光报警器',params:['volume','mode'],actions:[{label:'🚨 触发',fn:'triggerAlarm()'},{label:'✅ 停止',fn:'stopAlarm()'}]},
+  {id:'relay',name:'🔌 继电器',params:['channels','load'],actions:[{label:'⚡ 闭合',fn:'relayOn()'},{label:'🔓 断开',fn:'relayOff()'}]},
+  {id:'loc',name:'📍 室内定位节点',params:['precision','interval'],actions:[{label:'📍 定位',fn:'readLoc()'},{label:'⏹ 停止',fn:'iotLocT()'}]}
+];
+
+function renderCtrlDevices(){
+  const el=document.getElementById('ctrlDevices');
+  el.innerHTML=CTRL_DEVICES.map(d=>{
+    const params=A.devParams[d.id];
+    const paramHtml=params?Object.entries(params).map(([k,v])=>`<div class="cp-item"><span class="cp-label">${k}</span><span class="cp-val" id="cv_${d.id}_${k}">${v}</span></div>`).join(''):'';
+    const actHtml=d.actions.map(a=>`<button class="btn ${a.label.includes('触发')||a.label.includes('闭合')?'bw':a.label.includes('停止')||a.label.includes('断开')?'bo':'bp'} bs" onclick="${a.fn}">${a.label}</button>`).join('');
+    return`<div class="ctrl-device"><div class="ctrl-hd" onclick="toggleCtrl(this)"><div class="dev-name">${d.name}</div><div class="dev-status"><span class="io-led on"></span>在线</div></div>
+    <div class="ctrl-bd"><div class="ctrl-param">${paramHtml}</div><div class="ctrl-cmd">${actHtml}</div></div></div>`;
+  }).join('');
+}
+function toggleCtrl(el){const bd=el.nextElementSibling;bd.classList.toggle('open')}
+function setParam(devId,paramKey){
+  const cur=A.devParams[devId]?A.devParams[devId][paramKey]:'';
+  const newVal=prompt(`修改 ${devId}.${paramKey}\n当前值：${cur}\n输入新值：`);
+  if(newVal===null)return;
+  A.devParams[devId][paramKey]=isNaN(newVal)?newVal:Number(newVal);
+  const cvEl=document.getElementById(`cv_${devId}_${paramKey}`);
+  if(cvEl)cvEl.textContent=A.devParams[devId][paramKey];
+  sendCmd(CTRL_DEVICES.find(d=>d.id===devId)?.name||devId,`修改${paramKey}`,`${cur}→${A.devParams[devId][paramKey]}`,true);
+  log(`⚙️ 设备参数：${devId}.${paramKey} = ${A.devParams[devId][paramKey]}`);
+}
+
+/* ===== IO 状态指示灯 ===== */
+function updateIOGrid(){
+  const devices=[
+    {name:'RFID读写器',id:'rfidLed',status:A.rfidAuto?'自动采集中':'在线',cls:'on'},
+    {name:'温湿度',id:'sensLed',status:A.sensAuto?'自动采集中':'在线',cls:'on'},
+    {name:'称重HX711',id:'wtLed',status:A.wtAuto?'自动采集中':'在线',cls:'on'},
+    {name:'超声波HC-SR04',id:'usLed',status:A.usAuto?'自动采集中':'在线',cls:'on'},
+    {name:'红外MLX90614',id:'irLed',status:A.irAuto?'自动采集中':'在线',cls:'on'},
+    {name:'倾角MPU6050',id:'tiltLed',status:A.tiltAuto?'自动采集中':'在线',cls:'on'},
+    {name:'振动ADXL345',id:'vibLed',status:A.vibAuto?'自动采集中':'在线',cls:'on'},
+    {name:'门磁MC-31',id:'doorLed',status:A.sec.doorOpen?'⚠️门已开':'已关闭',cls:A.sec.doorOpen?'warn':'on'},
+    {name:'激光AB20-30',id:'laserLed',status:A.sec.laserTriggered?'⚠️光束中断':'正常',cls:A.sec.laserTriggered?'err':'on'},
+    {name:'声光报警SG-01',id:'alarmLed',status:A.sec.alarmOn?'🚨报警中':'待机',cls:A.sec.alarmOn?'err':'off'},
+    {name:'继电器SRD-05',id:'relayLed',status:A.sec.relayOn?'⚡闭合':'断开',cls:A.sec.relayOn?'on':'off'},
+    {name:'定位DW1000',id:'locLed',status:A.locAuto?'自动定位中':'在线',cls:'on'}
+  ];
+  document.getElementById('ioGrid').innerHTML=devices.map(d=>`<div class="io-item"><div class="io-led ${d.cls}" id="${d.id}"></div><div class="io-info"><div class="io-name">${d.name}</div><div class="io-status">${d.status}</div></div></div>`).join('');
+  devices.forEach(d=>{const el=document.getElementById(d.id);if(el)el.className='io-led '+d.cls});
+}
+
+/* ===== 边缘计算仿真 ===== */
+function edgeProcessAnomaly(title,detail){
+  A.edge.anomaly++;
+  const ts=new Date().toLocaleTimeString('zh-CN',{hour12:false});
+  const rec={time:ts,type:'异常',sensor:title,result:'异常',strategy:'优先上报',status:'已上报'};
+  A.edge.history.unshift(rec);if(A.edge.history.length>100)A.edge.history.pop();
+  A.edge.queue.push({ts,type:'anomaly',data:title+': '+detail});
+  if(A.edge.queue.length>50)A.edge.queue.shift();
+  A.edge.cloudSync++;
+  // 写入边缘队列终端
+  const eq=document.getElementById('edgeQueue');
+  eq.textContent+=`\n<span class="eq-anomaly">[${ts}] ⚠️ 异常优先上报</span>`;
+  eq.textContent+=`\n  ${title}: ${detail}`;
+  eq.textContent+=`\n  <span class="eq-upload">→ 已推送至云端 #${A.edge.cloudSync}</span>`;
+  eq.scrollTop=eq.scrollHeight;
+  renderEdgeTB();sync();
+}
+
+function edgeSimOnce(){
+  A.edge.total++;
+  const sensors=['温度','湿度','称重','超声波','红外测温','倾角','振动','门磁','激光','定位'];
+  const sensor=sensors[Math.floor(Math.random()*sensors.length)];
+  const isAnomaly=Math.random()<0.2;
+  const ts=new Date().toLocaleTimeString('zh-CN',{hour12:false});
+  let value,strategy,result,status;
+  if(isAnomaly){
+    A.edge.anomaly++;value='超限';strategy='优先上报';result='异常';status='已上报';A.edge.cloudSync++;
+    const eq=document.getElementById('edgeQueue');
+    eq.textContent+=`\n<span class="eq-anomaly">[${ts}] ⚠️ ${sensor}异常 → 优先上报</span>`;
+    eq.textContent+=`\n  <span class="eq-upload">→ 已推送至云端 #${A.edge.cloudSync}</span>`;
+    eq.scrollTop=eq.scrollHeight;
+  }else{
+    A.edge.normal++;value='正常';strategy='定时上传';result='正常';status='缓存中';
+    const eq=document.getElementById('edgeQueue');
+    eq.textContent+=`\n<span class="eq-normal">[${ts}] ✅ ${sensor}正常 → 加入定时上传队列</span>`;
+    eq.scrollTop=eq.scrollHeight;
+  }
+  A.edge.queue.push({ts,type:isAnomaly?'anomaly':'normal',data:`${sensor}: ${value}`});
+  if(A.edge.queue.length>50)A.edge.queue.shift();
+  const rec={time:ts,type:isAnomaly?'异常':'正常',sensor,result,strategy,status};
+  A.edge.history.unshift(rec);if(A.edge.history.length>100)A.edge.history.pop();
+  renderEdgeTB();sync();
+  log(`🧠 边缘研判：${sensor} ${result} → ${strategy}`);
+}
+
+function edgeToggleAuto(){
+  A.edge.autoOn=!A.edge.autoOn;
+  document.getElementById('edgeAutoLabel').textContent=A.edge.autoOn?'关闭自动':'开启自动';
+  log(`⏱ 边缘计算自动研判：${A.edge.autoOn?'开启':'关闭'}`);
+  if(A.edge.autoOn)edgeAutoLoop();
+}
+
+function edgeAutoLoop(){
+  if(!A.edge.autoOn)return;
+  edgeSimOnce();
+  const interval=+document.getElementById('edgeUploadInterval').value||10;
+  setTimeout(edgeAutoLoop,interval*1000);
+}
+
+// 定时上传正常数据（模拟每N秒一批）
+function edgeUploadNormal(){
+  const pending=A.edge.queue.filter(q=>q.type==='normal');
+  if(pending.length>0){
+    const batch=pending.splice(0,5);
+    A.edge.cloudSync+=batch.length;
+    A.edge.queue=A.edge.queue.filter(q=>q.type!=='normal'||!batch.includes(q));
+    const ts=new Date().toLocaleTimeString('zh-CN',{hour12:false});
+    const eq=document.getElementById('edgeQueue');
+    eq.textContent+=`\n<span class="eq-upload">[${ts}] ☁️ 定时上传：${batch.length}条正常数据 → 云端 #${A.edge.cloudSync}</span>`;
+    eq.scrollTop=eq.scrollHeight;
+    sync();
+  }
+}
+
+function addEdgeRule(){
+  const name=prompt('输入研判规则名称（如：重量超限）：');
+  if(!name)return;
+  const cond=prompt('输入触发条件（如：重量>50kg）：');
+  if(!cond)return;
+  const act=prompt('输入响应动作（如：异常优先上报）：');
+  if(!act)return;
+  const el=document.getElementById('edgeRules');
+  el.innerHTML+=`<div class="edge-rule"><span class="er-icon">⚙️</span><span class="er-cond">${name}：${cond}</span><span class="er-act">→ ${act}</span></div>`;
+  log(`➕ 边缘规则添加：${name}`);
+}
+
+function renderEdgeTB(){
+  const tb=document.getElementById('edgeTB');
+  if(!A.edge.history.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--fg-muted)">等待边缘计算…</td></tr>';return}
+  tb.innerHTML=A.edge.history.slice(0,30).map(r=>`<tr><td>${r.time}</td><td><span class="badge ${r.type==='异常'?'bD':'bS'}">${r.type}</span></td><td>${r.sensor}</td><td><span class="badge ${r.result==='异常'?'bD':'bS'}">${r.result}</span></td><td>${r.strategy}</td><td><span class="badge ${r.status==='已上报'?'bI':'bW'}">${r.status}</span></td></tr>`).join('');
+}
+
+/* ===== 室内定位 & 溯源 ===== */
+function queryTrace(){
+  const rfid=document.getElementById('traceRfid').value.trim().toUpperCase();
+  if(!rfid){alert('请输入RFID编码');return}
+  const rec=A.recs.find(r=>r.rfid===rfid);
+  const el=document.getElementById('traceTimeline');
+  if(!rec){el.innerHTML='<div style="color:var(--fg-muted);text-align:center;padding:20px;font-size:.84rem">未找到该RFID对应的包裹记录</div>';return}
+  // 构建溯源链
+  const steps=[
+    {title:'📦 包裹入库',detail:`RFID：${rec.rfid} | 网点：${rec.site} | 类型：${rec.type} | 批次：${rec.batch}`,cls:'done'},
+    {title:'⚖️ 物理参数采集',detail:`重量：${rec.wt||'未采集'}kg | 尺寸：${rec.dim||'未采集'} | 表面温度：${rec.surf!==null?rec.surf+'℃':'未采集'}`,cls:rec.wt?'done':''},
+    {title:'📐 姿态状态检测',detail:`倾角传感器：MPU6050 | 振动传感器：ADXL345 | 阈值：15° / 3g`,cls:''},
+    {title:'📍 室内定位',detail:`库区：${rec.zone}区 | 货架：${rec.shelf} | 定位方式：UWB TDOA | 精度：±10cm`,cls:rec.zone?'done':''},
+    {title:'🌡️ 环境监测',detail:`绑定环境传感器：SHT30 | 标准区间：10~25℃ / 40%~60%`,cls:''},
+    {title:'🧠 边缘计算研判',detail:`边缘网关本地研判 | 正常数据定时上传 | 异常数据优先上报`,cls:''},
+    {title:'☁️ 云端同步',detail:`数据上报云端 | 状态：${rec.st} | 时效：${rec.ttl}h`,cls:rec.st==='正常'?'done':'warn'}
+  ];
+  el.innerHTML=steps.map(s=>`<div class="trace-step ${s.cls}"><div class="ts-title">${s.title}</div><div class="ts-detail">${s.detail}</div></div>`).join('');
+  log(`🔍 溯源查询：${rfid}`);
+}
+
+function renderLocGrid(){
+  const el=document.getElementById('locGrid');
+  const zones='ABCDEFGH'.split('');
+  el.innerHTML=zones.map(z=>{
+    const pkgs=A.recs.filter(r=>r.zone===z);
+    const hasAlert=pkgs.some(r=>r.st==='超时'||r.st==='预警');
+    const cls=pkgs.length===0?'':hasAlert?'alert':'occupied';
+    const rfidList=pkgs.slice(0,3).map(r=>r.rfid.slice(-6)).join(' ');
+    const more=pkgs.length>3?` +${pkgs.length-3}`:'';
+    return`<div class="loc-cell ${cls}" onclick="showZoneDetail('${z}')"><div class="loc-id">${z}区</div><div style="font-size:.85rem;font-weight:700">${pkgs.length}件</div><div class="loc-rfid">${rfidList}${more}</div></div>`;
+  }).join('');
+  document.getElementById('traceLocated').textContent=A.recs.filter(r=>r.zone).length;
+}
+
+function showZoneDetail(zone){
+  const pkgs=A.recs.filter(r=>r.zone===zone);
+  if(!pkgs.length){alert(`${zone}区暂无包裹`);return}
+  const msg=pkgs.map(r=>`${r.rfid} | ${r.type} | ${r.shelf} | ${r.st}`).join('\n');
+  alert(`${zone}区包裹详情（${pkgs.length}件）：\n\n${msg}`);
+}
+
+/* ===== 图表绘制 ===== */
+function drawCharts(){drawLineChart();drawPieChart();drawHeatmap()}
+function drawLineChart(){
+  const canvas=document.getElementById('chartLine');if(!canvas)return;
+  const ctx=canvas.getContext('2d');canvas.width=canvas.offsetWidth;canvas.height=220;
+  const W=canvas.width,H=canvas.height;const pad={t:30,r:20,b:30,l:50};const pw=W-pad.l-pad.r,ph=H-pad.t-pad.b;
+  ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle='#e2e8f0';ctx.lineWidth=1;
+  for(let i=0;i<=5;i++){const y=pad.t+ph*i/5;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
+    ctx.fillStyle='#94a3b8';ctx.font='11px sans-serif';ctx.textAlign='right';ctx.fillText((25-i*3).toFixed(0)+'℃',pad.l-6,y+4)}
+  const data=A.envRecs.slice(0,24).reverse();
+  if(data.length<2){ctx.fillStyle='#94a3b8';ctx.font='13px sans-serif';ctx.textAlign='center';ctx.fillText('需至少2条环境数据',W/2,H/2);return}
+  const tMin=5,tMax=35;
+  ctx.beginPath();ctx.strokeStyle='#ef4444';ctx.lineWidth=2;
+  data.forEach((r,i)=>{const x=pad.l+pw*i/(data.length-1);const y=pad.t+ph*(1-(r.temp-tMin)/(tMax-tMin));i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)});ctx.stroke();
+  ctx.beginPath();ctx.strokeStyle='#3b82f6';ctx.lineWidth=2;
+  data.forEach((r,i)=>{const x=pad.l+pw*i/(data.length-1);const y=pad.t+ph*(1-(r.hum-20)/(80-20));i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)});ctx.stroke();
+  ctx.fillStyle='rgba(16,185,129,0.08)';const y1=pad.t+ph*(1-(25-tMin)/(tMax-tMin));const y2=pad.t+ph*(1-(10-tMin)/(tMax-tMin));ctx.fillRect(pad.l,y1,pw,y2-y1);
+  ctx.fillStyle='#ef4444';ctx.fillRect(pad.l,8,14,3);ctx.fillStyle='#374151';ctx.font='11px sans-serif';ctx.textAlign='left';ctx.fillText('温度(℃)',pad.l+18,13);
+  ctx.fillStyle='#3b82f6';ctx.fillRect(pad.l+90,8,14,3);ctx.fillStyle='#374151';ctx.fillText('湿度(%)',pad.l+108,13);
+  ctx.fillStyle='rgba(16,185,129,0.3)';ctx.fillRect(pad.l+170,6,14,7);ctx.fillStyle='#374151';ctx.fillText('标准区间',pad.l+188,13);
+}
+function drawPieChart(){
+  const canvas=document.getElementById('chartPie');if(!canvas)return;
+  const ctx=canvas.getContext('2d');canvas.width=canvas.offsetWidth;canvas.height=220;
+  const W=canvas.width,H=canvas.height;ctx.clearRect(0,0,W,H);
+  const n=A.recs.filter(r=>r.st==='正常').length,w=A.recs.filter(r=>r.st==='预警').length,o=A.recs.filter(r=>r.st==='超时').length;
+  const total=n+w+o;
+  if(!total){ctx.fillStyle='#94a3b8';ctx.font='13px sans-serif';ctx.textAlign='center';ctx.fillText('暂无包裹数据',W/2,H/2);return}
+  const cx=W/2,cy=H/2,r=Math.min(W,H)/2-30;
+  const slices=[{val:n,color:'#10b981',label:'正常'},{val:w,color:'#f59e0b',label:'预警'},{val:o,color:'#ef4444',label:'超时'}];
+  let startAngle=-Math.PI/2;
+  slices.forEach(s=>{if(!s.val)return;const angle=s.val/total*Math.PI*2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,startAngle,startAngle+angle);ctx.fillStyle=s.color;ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
+    const mid=startAngle+angle/2;const lx=cx+Math.cos(mid)*(r*0.65);const ly=cy+Math.sin(mid)*(r*0.65);
+    ctx.fillStyle='#fff';ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(`${s.label}\n${((s.val/total)*100).toFixed(0)}%`,lx,ly);startAngle+=angle});
+  ctx.beginPath();ctx.arc(cx,cy,r*0.35,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+  ctx.fillStyle='#374151';ctx.font='bold 14px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(total,cx,cy-6);
+  ctx.fillStyle='#94a3b8';ctx.font='10px sans-serif';ctx.fillText('总计',cx,cy+8);
+}
+function drawHeatmap(){
+  const zones=[{name:'A区',temp:22,hum:50},{name:'B区',temp:24,hum:55},{name:'C区',temp:19,hum:48},{name:'D区',temp:21,hum:52},{name:'E区',temp:26,hum:62},{name:'F区',temp:18,hum:45},{name:'G区',temp:23,hum:58},{name:'H区',temp:20,hum:51}];
+  const lastEnv=A.envRecs[0];
+  if(lastEnv){zones[0].temp=+lastEnv.temp;zones[0].hum=+lastEnv.hum;zones.forEach((z,i)=>{if(i>0){z.temp=+(lastEnv.temp+(Math.random()*4-2)).toFixed(1);z.hum=+(lastEnv.hum+(Math.random()*6-3)).toFixed(0)}})}
+  const el=document.getElementById('heatmap');
+  el.innerHTML=zones.map(z=>{const score=100-Math.abs(z.temp-22.5)*4-Math.abs(z.hum-50)*1.5;const heat=Math.max(0,Math.min(100,score));
+    const color=heat>80?`rgba(16,185,129,${0.15+heat*0.006})`:heat>50?`rgba(245,158,11,${0.15+heat*0.005})`:`rgba(239,68,68,${0.15+(100-heat)*0.005})`;
+    const textColor=heat>65?'#065f46':'#78350f';
+    return`<div class="hm-cell" style="background:${color};color:${textColor}"><span class="hm-zone">${z.name}</span><span class="hm-val">${z.temp}℃</span><span class="hm-zone">${z.hum}%</span></div>`}).join('');
+}
+
+/* ===== 统计 ===== */
+function populateSF(){const sel=document.getElementById('stSite');sel.innerHTML='<option value="">全部</option>'+Object.values(A.siteMap).map(s=>`<option value="${s}">${s}</option>`).join('')}
+function runStats(){
+  const site=document.getElementById('stSite').value,type=document.getElementById('stType').value,st=document.getElementById('stSt').value;
+  let d=A.recs.filter(r=>{if(site&&r.site!==site)return false;if(type&&r.type!==type)return false;if(st&&r.st!==st)return false;return true});
+  const n=d.filter(r=>r.st==='正常').length,w=d.filter(r=>r.st==='预警').length,o=d.filter(r=>r.st==='超时').length;
+  document.getElementById('sT').textContent=d.length;document.getElementById('sN').textContent=n;document.getElementById('sW').textContent=w;document.getElementById('sO').textContent=o;
+  document.getElementById('sN').parentElement.querySelector('.ds').textContent=d.length?`占比${((n/d.length)*100).toFixed(0)}%`:'--';
+  const sc={};d.forEach(r=>{sc[r.site]=(sc[r.site]||0)+1});const sk=Object.keys(sc).slice(0,8);const sm=Math.max(1,...Object.values(sc));
+  document.getElementById('siteCh').innerHTML=sk.map(k=>`<div class="cc" style="height:${(sc[k]/sm)*100}%"><span class="cv">${sc[k]}</span></div>`).join('');
+  document.getElementById('siteLb').innerHTML=sk.map(k=>`<span>${k.slice(0,4)}</span>`).join('');
+  const tc2={};d.forEach(r=>{tc2[r.type]=(tc2[r.type]||0)+1});const tk=Object.keys(tc2);const tm=Math.max(1,...Object.values(tc2));
+  document.getElementById('typeCh').innerHTML=tk.map(k=>`<div class="cc" style="height:${(tc2[k]/tm)*100}%"><span class="cv">${tc2[k]}</span></div>`).join('');
+  document.getElementById('typeLb').innerHTML=tk.map(k=>`<span>${k}</span>`).join('');
+  // 查询明细
+  const tb=document.getElementById('statTB');
+  if(!d.length){tb.innerHTML='<tr><td colspan="11" style="text-align:center;color:var(--fg-muted)">无匹配</td></tr>';return}
+  tb.innerHTML=d.slice(0,50).map(r=>`<tr><td>${r.time}</td><td><code>${r.rfid}</code></td><td>${r.site}</td><td>${r.type}</td><td>${r.wt?r.wt+'kg':'-'}</td><td>${r.dim||'-'}</td><td>${r.surf!==null?r.surf+'℃':'-'}</td><td>${r.zone}区</td><td>${r.shelf}</td><td>${r.ttl}h</td><td><span class="badge ${r.st==='正常'?'bS':r.st==='预警'?'bW':'bD'}">${r.st}</span></td></tr>`).join('');
+  // 综合信息报表
+  renderReport(d);
+  renderTS();drawCharts();
+}
+function resetStats(){document.getElementById('stSite').value='';document.getElementById('stType').value='';document.getElementById('stSt').value='';runStats()}
+
+function renderReport(d){
+  const tb=document.getElementById('reportTB');
+  if(!d||!d.length){tb.innerHTML='<tr><td colspan="14" style="text-align:center;color:var(--fg-muted)">请查询</td></tr>';return}
+  tb.innerHTML=d.slice(0,50).map(r=>{
+    const lastEnv=A.envRecs[0];
+    const edgeResult=r.st==='正常'?'正常':'异常';
+    return`<tr><td><code>${r.rfid}</code></td><td>${r.site}</td><td>${r.type}</td><td>${r.wt?r.wt+'kg':'-'}</td><td>${r.dim||'-'}</td><td>${r.surf!==null?r.surf+'℃':'-'}</td><td>-</td><td>-</td><td>${r.zone}区</td><td>${r.shelf}</td><td>${lastEnv?lastEnv.temp+'℃':'-'}</td><td>${lastEnv?lastEnv.hum+'%':'-'}</td><td><span class="badge ${edgeResult==='正常'?'bS':'bD'}">${edgeResult}</span></td><td><span class="badge ${r.st==='正常'?'bS':r.st==='预警'?'bW':'bD'}">${r.st}</span></td></tr>`
+  }).join('');
+}
+
+function exportFullReport(){
+  if(!A.recs.length){alert('暂无数据');return}
+  const lastEnv=A.envRecs[0];
+  const h='RFID,网点,类型,重量,尺寸,表面温度,库区,货架,环境温度,环境湿度,边缘研判,状态\n';
+  const d=A.recs.map(r=>`${r.rfid},${r.site},${r.type},${r.wt||''},${r.dim||''},${r.surf||''},${r.zone},${r.shelf},${lastEnv?lastEnv.temp:''},${lastEnv?lastEnv.hum:''},${r.st==='正常'?'正常':'异常'},${r.st}`).join('\n');
+  const blob=new Blob(['\uFEFF'+h+d],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='综合报表_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  log('📥 综合报表已导出');
+}
+
+/* ===== 全局同步 ===== */
+function sync(){
+  document.getElementById('hPkg').textContent=A.recs.length;document.getElementById('hScan').textContent=A.scanN;
+  document.getElementById('hAlert').textContent=A.alerts.length;
+  const onC=1+(A.rfidAuto?1:0)+(A.sensAuto?1:0)+(A.wtAuto?1:0)+(A.usAuto?1:0)+(A.irAuto?1:0)+(A.tiltAuto?1:0)+(A.vibAuto?1:0)+(A.doorAuto?1:0)+(A.laserAuto?1:0)+(A.alarmAuto?1:0)+(A.relayAuto?1:0)+(A.locAuto?1:0);
+  document.getElementById('hDev').textContent=`${Math.min(onC,12)}/12`;
+  document.getElementById('hCtrl').textContent=A.ctrl.cmdCount;
+  document.getElementById('dPkg').textContent=A.recs.length;document.getElementById('dPkgS').textContent=A.recs.length>5?'↑ 增长':'--';
+  document.getElementById('dScan').textContent=A.scanN;document.getElementById('dAlert').textContent=A.alerts.length;
+  document.getElementById('dAlertS').textContent=A.alerts.length?A.alerts.length+'项':'暂无';
+  const le=A.envRecs[0];
+  if(le){document.getElementById('dEnv').textContent=le.st;document.getElementById('dEnvS').textContent=`${le.temp}℃/${le.hum}%`;
+    document.getElementById('dEnv').parentElement.className='dc '+(le.st==='正常'?'green':le.st==='异常'?'red':'yellow')}
+  const avgD=A.comm.delays.length?+(A.comm.delays.reduce((a,b)=>a+b,0)/A.comm.delays.length).toFixed(1):'--';
+  document.getElementById('dComm').textContent=avgD<20?'良好':avgD<50?'一般':'较差';document.getElementById('dCommS').textContent=`时延${avgD}ms`;
+  document.getElementById('dComm').parentElement.className='dc '+(avgD<20?'green':avgD<50?'yellow':'red');
+  document.getElementById('dSensS').textContent=`在线 ${Math.min(onC,12)}`;
+  const secOk=!A.sec.doorOpen&&!A.sec.laserTriggered&&!A.sec.alarmOn;
+  document.getElementById('dSec').textContent=secOk?'安全':'告警';
+  document.getElementById('dSecS').textContent=A.sec.doorOpen?'门已打开':A.sec.laserTriggered?'光束中断':A.sec.alarmOn?'报警中':'门禁正常';
+  document.getElementById('dSec').parentElement.className='dc '+(secOk?'green':'red');
+  // 控制面板
+  document.getElementById('ctrlUp').textContent=8;document.getElementById('ctrlDown').textContent=4;
+  document.getElementById('ctrlCmd').textContent=A.ctrl.cmdCount;document.getElementById('ctrlLink').textContent=A.ctrl.linkCount;
+  // 边缘网关
+  document.getElementById('dEdge').textContent=A.edge.autoOn?'在线':'在线';
+  document.getElementById('dEdgeS').textContent=A.edge.autoOn?'自动研判':'手动';
+  document.getElementById('dEdge').parentElement.className='dc '+(A.edge.autoOn?'purple':'');
+  document.getElementById('edgeLocal').textContent=A.edge.total;
+  document.getElementById('edgeNorm').textContent=A.edge.normal;
+  document.getElementById('edgeAnomaly').textContent=A.edge.anomaly;
+  document.getElementById('edgeCloud').textContent=A.edge.cloudSync;
+  document.getElementById('edgeRatio').textContent=A.edge.total?(A.edge.normal+'/'+A.edge.anomaly):'--';
+  document.getElementById('efSens').textContent=A.edge.total;
+  document.getElementById('efGW').textContent=A.edge.autoOn?'自动研判':'手动';
+  document.getElementById('efNorm').textContent=A.edge.normal;
+  document.getElementById('efAnomaly').textContent=A.edge.anomaly;
+  document.getElementById('efCloud').textContent=A.edge.cloudSync;
+  // IO
+  updateIOGrid();
+  // 模拟录入计数
+  simUpdateCount();
+}
+
+/* ===== 定时 ===== */
+setInterval(chkOverdue,60000);
+setInterval(()=>{if(A.doorAuto)readDoor();if(A.laserAuto)readLaser()},10000);
+setInterval(edgeUploadNormal,15000); // 边缘网关每15秒上传正常数据
+
+/* ===== 初始化 ===== */
+(function(){log('系统启动 V5 · 边缘计算+全链路溯源');setTimeout(()=>{fetchSens();renderCtrlDevices();renderLocGrid();populateSF();sync()},400)})();
+</script>
+</body>
+</html>
